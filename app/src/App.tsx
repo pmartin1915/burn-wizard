@@ -1,35 +1,107 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useWizardStore } from './store/useWizardStore';
+import { SafetyBanner } from './core/safety';
+import Home from './routes/Home';
+import Review from './routes/Review';
+import Settings from './routes/Settings';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { enabled: false }, // Disable network queries for offline-first
+  },
+});
+
+type Route = 'home' | 'review' | 'settings';
 
 function App() {
+  const [currentRoute, setCurrentRoute] = useState<Route>('home');
+  const { settings } = useWizardStore();
+
+  React.useEffect(() => {
+    if (settings.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings.darkMode]);
+
+  const renderRoute = () => {
+    switch (currentRoute) {
+      case 'home':
+        return <Home onNavigate={setCurrentRoute} />;
+      case 'review':
+        return <Review onNavigate={setCurrentRoute} />;
+      case 'settings':
+        return <Settings onNavigate={setCurrentRoute} />;
+      default:
+        return <Home onNavigate={setCurrentRoute} />;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Burn Wizard</h1>
-          <p className="text-gray-600 mt-2">Clinical tool for burn assessment and fluid management</p>
-          <div className="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 rounded-md mt-4">
-            ⚠️ Educational Tool Only - Not for Direct Patient Care - Verify All Calculations
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen bg-background text-foreground">
+        <SafetyBanner />
+        
+        {/* Header */}
+        <header className="border-b bg-card">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold">Burn Wizard</h1>
+                <p className="text-sm text-muted-foreground">Clinical tool for burn assessment and fluid management</p>
+              </div>
+              
+              <nav className="flex gap-2">
+                <button
+                  onClick={() => setCurrentRoute('home')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    currentRoute === 'home' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Assessment
+                </button>
+                <button
+                  onClick={() => setCurrentRoute('review')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    currentRoute === 'review' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Review
+                </button>
+                <button
+                  onClick={() => setCurrentRoute('settings')}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    currentRoute === 'settings' 
+                      ? 'bg-primary text-primary-foreground' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Settings
+                </button>
+              </nav>
+            </div>
           </div>
         </header>
 
-        <main className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Getting Started</h2>
-          <p className="text-gray-700">
-            Welcome to Burn Wizard! This application will help you with burn assessment calculations.
-            The full interface is being set up. For now, this confirms the basic structure is working.
-          </p>
-          
-          <div className="mt-6 p-4 bg-blue-50 rounded-md">
-            <h3 className="font-medium text-blue-900">Next Steps:</h3>
-            <ul className="mt-2 text-blue-800 space-y-1">
-              <li>• Install dependencies with npm install</li>
-              <li>• Start development server with npm run dev</li>
-              <li>• Run tests with npm test</li>
-            </ul>
-          </div>
+        <main className="container mx-auto px-4 py-6">
+          {renderRoute()}
         </main>
+
+        {/* Footer */}
+        <footer className="border-t bg-card mt-12">
+          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+            <p>Burn Wizard v0.1.0 - Educational Tool Only</p>
+            <p className="mt-1">Always verify calculations with institutional protocols and clinical judgment</p>
+          </div>
+        </footer>
       </div>
-    </div>
+    </QueryClientProvider>
   );
 }
 
