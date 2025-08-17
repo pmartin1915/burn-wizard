@@ -7,6 +7,9 @@ import Header from './components/Header';
 import Home from './routes/Home';
 import Review from './routes/Review';
 import Settings from './routes/Settings';
+import DressingGuide from './components/DressingGuide';
+import AnalgesiaTips from './components/AnalgesiaTips';
+import NotePreview from './components/NotePreview';
 import { cn } from './lib/utils';
 
 const queryClient = new QueryClient({
@@ -34,27 +37,48 @@ function App() {
   const renderTabContent = () => {
     switch (currentTab) {
       case 'tbsa':
-        return <Home onNavigate={() => {}} />;
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Home onNavigate={() => {}} />
+            </div>
+          </div>
+        );
       case 'procedure':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Procedure Note</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Home onNavigate={() => {}} />
+            <h2 className="text-2xl font-bold">Procedure Documentation</h2>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="xl:col-span-2 space-y-6">
+                <Review onNavigate={() => {}} />
+                <DressingGuide />
+                <AnalgesiaTips />
+              </div>
+              <div>
+                <NotePreview />
+              </div>
             </div>
           </div>
         );
       case 'discharge':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Discharge Teaching</h2>
-            <Review onNavigate={() => {}} />
+            <h2 className="text-2xl font-bold">Discharge Planning</h2>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <DressingGuide />
+                <AnalgesiaTips />
+              </div>
+              <div>
+                <NotePreview />
+              </div>
+            </div>
           </div>
         );
       case 'history':
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Patient History</h2>
+            <h2 className="text-2xl font-bold">Settings & History</h2>
             <Settings onNavigate={() => {}} />
           </div>
         );
