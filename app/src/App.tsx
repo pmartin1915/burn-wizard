@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useWizardStore } from './store/useWizardStore';
 import { SafetyBanner } from './core/safety';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 import Home from './routes/Home';
 import Review from './routes/Review';
 import Settings from './routes/Settings';
+import { cn } from './lib/utils';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,10 +15,12 @@ const queryClient = new QueryClient({
   },
 });
 
-type Route = 'home' | 'review' | 'settings';
+type TabRoute = 'tbsa' | 'procedure' | 'discharge' | 'history';
 
 function App() {
-  const [currentRoute, setCurrentRoute] = useState<Route>('home');
+  const [currentTab, setCurrentTab] = useState<TabRoute>('tbsa');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { settings } = useWizardStore();
 
   React.useEffect(() => {
@@ -26,16 +31,35 @@ function App() {
     }
   }, [settings.darkMode]);
 
-  const renderRoute = () => {
-    switch (currentRoute) {
-      case 'home':
-        return <Home onNavigate={setCurrentRoute} />;
-      case 'review':
-        return <Review onNavigate={setCurrentRoute} />;
-      case 'settings':
-        return <Settings onNavigate={setCurrentRoute} />;
+  const renderTabContent = () => {
+    switch (currentTab) {
+      case 'tbsa':
+        return <Home onNavigate={() => {}} />;
+      case 'procedure':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Procedure Note</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Home onNavigate={() => {}} />
+            </div>
+          </div>
+        );
+      case 'discharge':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Discharge Teaching</h2>
+            <Review onNavigate={() => {}} />
+          </div>
+        );
+      case 'history':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold">Patient History</h2>
+            <Settings onNavigate={() => {}} />
+          </div>
+        );
       default:
-        return <Home onNavigate={setCurrentRoute} />;
+        return <Home onNavigate={() => {}} />;
     }
   };
 
@@ -44,62 +68,43 @@ function App() {
       <div className="min-h-screen bg-background text-foreground">
         <SafetyBanner />
         
-        {/* Header */}
-        <header className="border-b bg-card">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold">Burn Wizard</h1>
-                <p className="text-sm text-muted-foreground">Clinical tool for burn assessment and fluid management</p>
-              </div>
-              
-              <nav className="flex gap-2">
-                <button
-                  onClick={() => setCurrentRoute('home')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentRoute === 'home' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Assessment
-                </button>
-                <button
-                  onClick={() => setCurrentRoute('review')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentRoute === 'review' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Review
-                </button>
-                <button
-                  onClick={() => setCurrentRoute('settings')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    currentRoute === 'settings' 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Settings
-                </button>
-              </nav>
+        {/* Sidebar Navigation */}
+        <Sidebar
+          currentTab={currentTab}
+          onTabChange={setCurrentTab}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          isMobileOpen={mobileSidebarOpen}
+          onToggleMobile={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+        />
+
+        {/* Main Layout */}
+        <div className={cn(
+          'min-h-screen transition-all duration-300 ease-in-out',
+          // Adjust layout based on sidebar state
+          'lg:ml-0',
+          sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-64'
+        )}>
+          {/* Header */}
+          <Header 
+            sidebarCollapsed={sidebarCollapsed}
+          />
+
+          {/* Main Content */}
+          <main className="p-6">
+            <div className="max-w-7xl mx-auto">
+              {renderTabContent()}
             </div>
-          </div>
-        </header>
+          </main>
 
-        <main className="container mx-auto px-4 py-6">
-          {renderRoute()}
-        </main>
-
-        {/* Footer */}
-        <footer className="border-t bg-card mt-12">
-          <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
-            <p>Burn Wizard v0.1.0 - Educational Tool Only</p>
-            <p className="mt-1">Always verify calculations with institutional protocols and clinical judgment</p>
-          </div>
-        </footer>
+          {/* Footer */}
+          <footer className="border-t bg-card/50 mt-12">
+            <div className="max-w-7xl mx-auto px-6 py-6 text-center text-sm text-muted-foreground">
+              <p>Burn Wizard v0.1.0 - Educational Tool Only</p>
+              <p className="mt-1">Always verify calculations with institutional protocols and clinical judgment</p>
+            </div>
+          </footer>
+        </div>
       </div>
     </QueryClientProvider>
   );
