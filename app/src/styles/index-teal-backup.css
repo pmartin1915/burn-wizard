@@ -1,0 +1,129 @@
+/* BACKUP: Medical Teal Theme - Option 1 */
+/* This file contains the teal theme implementation for easy reversion */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Medical Teal & Warm Accent Theme */
+    --background: 46 100% 99%; /* Soft cream background */
+    --foreground: 184 61% 14%; /* Dark teal text */
+    --card: 0 0% 100%; /* Pure white cards */
+    --card-foreground: 184 61% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 184 61% 14%;
+    --primary: 173 80% 40%; /* Medical teal */
+    --primary-foreground: 0 0% 100%; /* White text on teal */
+    --secondary: 174 56% 96%; /* Very light teal */
+    --secondary-foreground: 184 61% 14%;
+    --muted: 174 56% 96%;
+    --muted-foreground: 184 20% 50%;
+    --accent: 174 56% 96%; /* Light teal accent */
+    --accent-foreground: 184 61% 14%;
+    --destructive: 0 84% 60%; /* Warm coral for alerts */
+    --destructive-foreground: 0 0% 100%;
+    --border: 174 44% 88%; /* Light teal borders */
+    --input: 174 44% 92%;
+    --ring: 173 80% 40%; /* Teal focus ring */
+    --radius: 0.5rem;
+    
+    /* Burn severity colors - enhanced */
+    --burn-superficial: 0 93% 94%; /* Soft pink */
+    --burn-superficial-partial: 25 95% 84%; /* Warm peach */
+    --burn-deep-partial: 45 93% 90%; /* Golden yellow */
+    --burn-full-thickness: 210 20% 90%; /* Light gray */
+  }
+
+  .dark {
+    /* Dark mode - maintains medical teal theme */
+    --background: 184 84% 6%; /* Dark teal background */
+    --foreground: 174 56% 96%; /* Light teal text */
+    --card: 184 61% 8%; /* Dark teal cards */
+    --card-foreground: 174 56% 96%;
+    --popover: 184 61% 8%;
+    --popover-foreground: 174 56% 96%;
+    --primary: 174 84% 60%; /* Bright teal */
+    --primary-foreground: 184 84% 6%;
+    --secondary: 184 32% 18%; /* Dark teal secondary */
+    --secondary-foreground: 174 56% 96%;
+    --muted: 184 32% 18%;
+    --muted-foreground: 174 20% 70%;
+    --accent: 184 32% 18%; /* Dark teal accent */
+    --accent-foreground: 174 56% 96%;
+    --destructive: 0 73% 45%; /* Darker coral for dark mode */
+    --destructive-foreground: 174 56% 96%;
+    --border: 184 32% 18%;
+    --input: 184 32% 18%;
+    --ring: 174 84% 70%; /* Bright teal ring */
+    
+    /* Dark mode burn colors */
+    --burn-superficial: 0 45% 25%; /* Dark pink */
+    --burn-superficial-partial: 25 45% 30%; /* Dark peach */
+    --burn-deep-partial: 45 45% 35%; /* Dark yellow */
+    --burn-full-thickness: 210 20% 25%; /* Dark gray */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Enhanced medical theme styling */
+  .burn-wizard-card {
+    @apply bg-card/95 backdrop-blur-sm border border-border/50 shadow-sm;
+    @apply transition-all duration-200 hover:shadow-md hover:border-border;
+  }
+  
+  .burn-wizard-primary-button {
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground;
+    @apply shadow-sm hover:shadow transition-all duration-200;
+  }
+  
+  .burn-wizard-teal-accent {
+    @apply bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20;
+  }
+  
+  /* Medical alert styling */
+  .burn-wizard-disclaimer {
+    @apply bg-amber-50 border-amber-200 text-amber-800 px-4 py-2 text-sm border-l-4;
+    @apply dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-200;
+  }
+  
+  .burn-wizard-warning {
+    @apply bg-destructive/10 border-destructive/20 text-destructive px-4 py-3 border-l-4;
+    @apply dark:bg-destructive/20 dark:text-destructive-foreground;
+  }
+  
+  /* TBSA display enhancement */
+  .tbsa-display {
+    @apply text-primary font-bold text-lg tracking-wide;
+    @apply bg-primary/5 px-3 py-1 rounded-md border border-primary/20;
+  }
+  
+  /* Burn region button enhancements */
+  .burn-region-button {
+    @apply transition-all duration-200 hover:scale-105 active:scale-95;
+    @apply shadow-sm hover:shadow-md border-2;
+  }
+  
+  /* Medical form styling */
+  .medical-input {
+    @apply bg-background border-2 border-border/60 focus:border-primary;
+    @apply transition-colors duration-200 rounded-md;
+  }
+  
+  /* Header enhancements */
+  .medical-header {
+    @apply bg-card/80 backdrop-blur-md border-border/60;
+    @apply shadow-sm;
+  }
+}

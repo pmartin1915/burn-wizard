@@ -6,10 +6,12 @@ import {
   FileText, 
   GraduationCap, 
   History, 
+  Settings,
   Menu, 
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +28,7 @@ interface SidebarProps {
 interface NavItem {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   description: string;
 }
 
@@ -36,6 +38,18 @@ const navItems: NavItem[] = [
     label: 'TBSA Assessment',
     icon: Calculator,
     description: 'Body map and burn percentage calculation'
+  },
+  {
+    id: 'scenarios',
+    label: 'Clinical Scenarios',
+    icon: GraduationCap,
+    description: 'Practice with realistic training cases'
+  },
+  {
+    id: 'tutorials',
+    label: 'Interactive Tutorials',
+    icon: BookOpen,
+    description: 'Step-by-step guided learning experience'
   },
   {
     id: 'procedure',
@@ -54,6 +68,12 @@ const navItems: NavItem[] = [
     label: 'Patient History',
     icon: History,
     description: 'Previous assessments and notes'
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: Settings,
+    description: 'Security, preferences, and configuration'
   }
 ];
 
@@ -71,27 +91,28 @@ export default function Sidebar({
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
           onClick={onToggleMobile}
         />
       )}
 
       {/* Sidebar */}
       <aside className={cn(
-        'fixed left-0 top-0 h-full bg-background border-r border-border z-50 transition-all duration-300 ease-in-out',
-        // Desktop behavior
-        'lg:relative lg:translate-x-0',
-        isCollapsed ? 'lg:w-20' : 'lg:w-64',
+        // Always fixed positioning to avoid layout flow issues
+        'fixed left-0 top-0 h-full bg-card/95 backdrop-blur-md border-r border-border z-50 transition-all duration-300 ease-in-out shadow-xl lg:shadow-none',
+        // Desktop visibility and width
+        'lg:translate-x-0',
+        isCollapsed ? 'w-20' : 'w-64',
         // Mobile behavior
         'lg:block',
-        isMobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64',
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         className
       )}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             {!isCollapsed && (
-              <h2 className="font-semibold text-lg">Navigation</h2>
+              <h2 className="burn-wizard-heading-sm">Navigation</h2>
             )}
             
             {/* Mobile close button */}
@@ -99,7 +120,7 @@ export default function Sidebar({
               variant="ghost"
               size="icon"
               onClick={onToggleMobile}
-              className="lg:hidden"
+              className="lg:hidden focus-ring touch-target"
             >
               <X className="h-5 w-5" />
             </Button>
@@ -109,7 +130,7 @@ export default function Sidebar({
               variant="ghost"
               size="icon"
               onClick={onToggleCollapse}
-              className="hidden lg:flex"
+              className="hidden lg:flex focus-ring touch-target"
             >
               {isCollapsed ? (
                 <ChevronRight className="h-5 w-5" />
@@ -135,12 +156,14 @@ export default function Sidebar({
                       onToggleMobile();
                     }
                   }}
+                  data-tab={item.id}
                   className={cn(
-                    'w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-colors',
-                    'hover:bg-accent hover:text-accent-foreground',
-                    'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
-                    isActive && 'bg-primary text-primary-foreground hover:bg-primary/90',
-                    isCollapsed && 'justify-center px-2'
+                    'w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left touch-target',
+                    'transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:translate-x-1 hover:shadow-sm',
+                    'focus-ring animate-scale-in',
+                    'active:scale-95 active:translate-x-0',
+                    isActive && 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-md translate-x-1',
+                    isCollapsed && 'justify-center px-2 hover:translate-x-0'
                   )}
                   title={isCollapsed ? item.label : undefined}
                 >

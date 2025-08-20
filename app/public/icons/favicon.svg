@@ -1,0 +1,36 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pixelated Wizard SVG representation matching your PNG -->
+  <!-- Background -->
+  <rect width="32" height="32" fill="#f5f5dc" opacity="0"/>
+  
+  <!-- Wizard Hat (pointier) -->
+  <rect x="10" y="2" width="12" height="2" fill="#0f766e"/>
+  <rect x="8" y="4" width="16" height="4" fill="#0f766e"/>
+  <rect x="6" y="8" width="20" height="2" fill="#0f766e"/>
+  <rect x="4" y="10" width="24" height="2" fill="#0f766e"/>
+  
+  <!-- Hat brim -->
+  <rect x="2" y="12" width="28" height="2" fill="#134e4a"/>
+  
+  <!-- Face -->
+  <rect x="8" y="14" width="16" height="8" fill="#fbbf24"/>
+  
+  <!-- Beard (greyer) -->
+  <rect x="6" y="22" width="20" height="6" fill="#d1d5db"/>
+  
+  <!-- Eyes -->
+  <rect x="10" y="16" width="2" height="2" fill="#000"/>
+  <rect x="20" y="16" width="2" height="2" fill="#000"/>
+  
+  <!-- Staff (simplified) -->
+  <rect x="26" y="8" width="2" height="20" fill="#8b4513"/>
+  <rect x="24" y="6" width="2" height="2" fill="#ef4444"/>
+  <rect x="28" y="6" width="2" height="2" fill="#ef4444"/>
+  <rect x="26" y="4" width="2" height="2" fill="#ef4444"/>
+  <rect x="26" y="8" width="2" height="2" fill="#ef4444"/>
+  
+  <!-- Flame (simplified) -->
+  <rect x="2" y="16" width="2" height="4" fill="#ef4444"/>
+  <rect x="4" y="14" width="2" height="2" fill="#f97316"/>
+  <rect x="4" y="18" width="2" height="2" fill="#fbbf24"/>
+</svg>

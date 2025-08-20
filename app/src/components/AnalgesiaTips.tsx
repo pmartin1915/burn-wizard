@@ -9,7 +9,6 @@ import {
   Shield, 
   Activity,
   Brain,
-  Users,
   Baby,
   User
 } from 'lucide-react';
@@ -22,7 +21,7 @@ interface AnalgesiaTipsProps {
 
 interface PainManagementTip {
   category: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   tips: string[];
   ageSpecific?: {
     pediatric?: string[];
@@ -159,7 +158,7 @@ export default function AnalgesiaTips({ className }: AnalgesiaTipsProps) {
     return calcAgeBand(patientData.ageMonths);
   }, [patientData.ageMonths]);
   
-  const isPediatric = ageBand !== '15plus';
+  const isPediatric = ageBand !== 'Adult';
   const painAssessmentScales = isPediatric ? PAIN_ASSESSMENT_SCALES.pediatric : PAIN_ASSESSMENT_SCALES.adult;
 
   return (
@@ -320,7 +319,7 @@ export default function AnalgesiaTips({ className }: AnalgesiaTipsProps) {
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <AlertCircle className="h-3 w-3 text-red-500 mt-0.5 flex-shrink-0" />
-              <span>Pain score consistently >7/10 despite interventions</span>
+              <span>Pain score consistently {'>'}7/10 despite interventions</span>
             </li>
             <li className="flex items-start gap-2">
               <AlertCircle className="h-3 w-3 text-red-500 mt-0.5 flex-shrink-0" />
@@ -341,7 +340,7 @@ export default function AnalgesiaTips({ className }: AnalgesiaTipsProps) {
             size="sm" 
             className="mt-4 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20"
           >
-            Contact Pain Management Team: {{PAIN_TEAM_CONTACT}}
+            Contact Pain Management Team: [Contact Info]
           </Button>
         </CardContent>
       </Card>

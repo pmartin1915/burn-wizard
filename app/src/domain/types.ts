@@ -1,39 +1,34 @@
 /**
- * Age bands for Lund-Browder TBSA calculations
+ * Age groups for Lund-Browder TBSA calculations - matches hospital chart
  */
-export type AgeBand = 'infant' | '1to4' | '5to9' | '10to14' | '15plus';
+export type AgeGroup = '0' | '1' | '5' | '10' | '15' | 'Adult';
 
 /**
- * Body regions used in burn assessment
+ * Body regions used in burn assessment - matches hospital chart structure
  */
-export type RegionKey =
-  | 'headAnterior'
-  | 'headPosterior'
-  | 'neckAnterior'
-  | 'neckPosterior'
-  | 'torsoAnterior'
-  | 'torsoPosterior'
-  | 'armRightAnterior'
-  | 'armRightPosterior'
-  | 'armLeftAnterior'
-  | 'armLeftPosterior'
-  | 'forearmRightAnterior'
-  | 'forearmRightPosterior'
-  | 'forearmLeftAnterior'
-  | 'forearmLeftPosterior'
-  | 'handRight'
-  | 'handLeft'
-  | 'thighRightAnterior'
-  | 'thighRightPosterior'
-  | 'thighLeftAnterior'
-  | 'thighLeftPosterior'
-  | 'legRightAnterior'
-  | 'legRightPosterior'
-  | 'legLeftAnterior'
-  | 'legLeftPosterior'
-  | 'footRight'
-  | 'footLeft'
-  | 'perineum';
+export type BodyArea = 
+  | 'Head'
+  | 'Neck'
+  | 'Ant_Trunk'
+  | 'Post_Trunk'
+  | 'R_Buttock'
+  | 'L_Buttock'
+  | 'Genitalia'
+  | 'R_U_Arm'
+  | 'L_U_Arm'
+  | 'R_L_Arm'
+  | 'L_L_Arm'
+  | 'R_Hand'
+  | 'L_Hand'
+  | 'R_Thigh'
+  | 'L_Thigh'
+  | 'R_Leg'
+  | 'L_Leg'
+  | 'R_Foot'
+  | 'L_Foot';
+
+// Legacy type for backward compatibility
+export type RegionKey = BodyArea;
 
 /**
  * Fractional involvement of a body region (0.25 increments)
@@ -41,11 +36,17 @@ export type RegionKey =
 export type BurnFraction = 0 | 0.25 | 0.5 | 0.75 | 1;
 
 /**
- * Selection of a body region with fractional involvement
+ * Burn depth classification
+ */
+export type BurnDepth = 'superficial' | 'superficial-partial' | 'deep-partial' | 'full-thickness';
+
+/**
+ * Selection of a body region with fractional involvement and burn depth
  */
 export interface RegionSelection {
-  region: RegionKey;
+  region: BodyArea;
   fraction: BurnFraction;
+  depth?: BurnDepth; // Optional for backward compatibility
 }
 
 /**
@@ -66,12 +67,16 @@ export interface PatientData {
 }
 
 /**
- * TBSA calculation result
+ * TBSA calculation result with enhanced validation
  */
 export interface TbsaResult {
   tbsaPct: number;
-  breakdown: Record<RegionKey, number>;
-  ageBand: AgeBand;
+  breakdown: Record<BodyArea, number>;
+  ageGroup: AgeGroup;
+  validation?: {
+    warnings: string[];
+    clinicalFlags: boolean;
+  };
 }
 
 /**
@@ -80,7 +85,7 @@ export interface TbsaResult {
 export type FluidPhase = 'first8' | 'next16';
 
 /**
- * Fluid resuscitation calculation result
+ * Fluid resuscitation calculation result with enhanced validation
  */
 export interface FluidResult {
   parkland: {
@@ -103,6 +108,10 @@ export interface FluidResult {
     phase: FluidPhase;
   }>;
   notice?: string;
+  validation?: {
+    warnings: string[];
+    clinicalFlags: boolean;
+  };
 }
 
 /**

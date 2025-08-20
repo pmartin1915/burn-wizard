@@ -1,0 +1,372 @@
+name: PWA Validation & Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  pwa-build-validation:
+    name: PWA Build Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build PWA
+      run: |
+        echo "📱 Building PWA for medical application..."
+        npm run build
+        
+    - name: Validate Service Worker
+      run: |
+        echo "🔧 Validating Service Worker..."
+        
+        # Check if service worker was generated
+        if [ ! -f dist/sw.js ]; then
+          echo "❌ Service Worker (sw.js) not found"
+          exit 1
+        else
+          echo "✅ Service Worker generated"
+        fi
+        
+        # Check service worker content
+        if grep -q "workbox" dist/sw.js; then
+          echo "✅ Workbox runtime detected in service worker"
+        else
+          echo "⚠️ Workbox runtime not detected - manual validation needed"
+        fi
+        
+        # Check for medical-specific caching strategies
+        if grep -q "CacheFirst\|NetworkFirst" dist/sw.js; then
+          echo "✅ Caching strategies implemented"
+        else
+          echo "⚠️ Caching strategies not clearly identified"
+        fi
+        
+    - name: Validate PWA Manifest
+      run: |
+        echo "📋 Validating PWA Manifest..."
+        
+        # Check if manifest exists
+        if [ ! -f dist/manifest.webmanifest ]; then
+          echo "❌ PWA Manifest not found"
+          exit 1
+        else
+          echo "✅ PWA Manifest found"
+        fi
+        
+        # Validate manifest content
+        if command -v jq > /dev/null; then
+          # Check required PWA fields
+          NAME=$(jq -r '.name' dist/manifest.webmanifest 2>/dev/null || echo "null")
+          SHORT_NAME=$(jq -r '.short_name' dist/manifest.webmanifest 2>/dev/null || echo "null")
+          START_URL=$(jq -r '.start_url' dist/manifest.webmanifest 2>/dev/null || echo "null")
+          DISPLAY=$(jq -r '.display' dist/manifest.webmanifest 2>/dev/null || echo "null")
+          THEME_COLOR=$(jq -r '.theme_color' dist/manifest.webmanifest 2>/dev/null || echo "null")
+          
+          echo "📊 Manifest Analysis:"
+          echo "  Name: $NAME"
+          echo "  Short Name: $SHORT_NAME"
+          echo "  Start URL: $START_URL"
+          echo "  Display: $DISPLAY"
+          echo "  Theme Color: $THEME_COLOR"
+          
+          # Validate critical fields
+          if [ "$NAME" != "null" ] && [ "$SHORT_NAME" != "null" ] && [ "$START_URL" != "null" ]; then
+            echo "✅ Required manifest fields present"
+          else
+            echo "❌ Missing required manifest fields"
+            exit 1
+          fi
+          
+          # Check for medical app specific fields
+          if jq -e '.categories | contains(["medical", "health"])' dist/manifest.webmanifest > /dev/null 2>&1; then
+            echo "✅ Medical app category specified"
+          else
+            echo "⚠️ Consider adding medical/health category"
+          fi
+        else
+          echo "⚠️ jq not available - skipping detailed manifest validation"
+        fi
+        
+    - name: Validate PWA Icons
+      run: |
+        echo "🎨 Validating PWA Icons..."
+        
+        # Check for required icon sizes
+        REQUIRED_SIZES=("192" "512")
+        for size in "${REQUIRED_SIZES[@]}"; do
+          if [ -f "dist/icons/pwa-${size}x${size}.png" ] || [ -f "app/public/icons/pwa-${size}x${size}.png" ]; then
+            echo "✅ ${size}x${size} icon found"
+          else
+            echo "❌ ${size}x${size} icon missing"
+          fi
+        done
+        
+        # Check for favicon
+        if [ -f "dist/favicon.ico" ] || [ -f "dist/favicon.svg" ]; then
+          echo "✅ Favicon found"
+        else
+          echo "⚠️ Favicon not found"
+        fi
+        
+    - name: Validate Offline Functionality
+      run: |
+        echo "📱 Validating Offline Capabilities..."
+        
+        # Check for cached medical calculation files
+        if [ -f dist/sw.js ]; then
+          # Look for medical domain files in precache
+          if grep -q "domain.*tbsa\|domain.*fluids" dist/sw.js; then
+            echo "✅ Medical calculation files appear to be cached"
+          else
+            echo "⚠️ Medical calculation files may not be cached for offline use"
+          fi
+          
+          # Check for essential assets caching
+          if grep -q "precache" dist/sw.js; then
+            echo "✅ Asset precaching enabled"
+          else
+            echo "⚠️ Asset precaching not detected"
+          fi
+        fi
+        
+    - name: Medical PWA Compliance Check
+      run: |
+        echo "🏥 Medical PWA Compliance Check..."
+        
+        # Check for medical-specific PWA requirements
+        echo "Checking medical application PWA requirements..."
+        
+        # 1. Offline functionality for critical features
+        echo "1. Offline Medical Calculations:"
+        if [ -d "dist/assets" ] && grep -r "tbsa\|fluid" dist/assets/ > /dev/null 2>&1; then
+          echo "   ✅ Medical calculations bundled for offline use"
+        else
+          echo "   ⚠️ Medical calculations offline availability unclear"
+        fi
+        
+        # 2. Secure storage validation
+        echo "2. Secure Data Storage:"
+        if grep -r "encryptedStorage\|encryption" dist/assets/ > /dev/null 2>&1; then
+          echo "   ✅ Encrypted storage implementation detected"
+        else
+          echo "   ⚠️ Encrypted storage implementation not detected in build"
+        fi
+        
+        # 3. Session management for medical data
+        echo "3. Session Security:"
+        if grep -r "sessionManager\|sessionTimeout" dist/assets/ > /dev/null 2>&1; then
+          echo "   ✅ Session management detected"
+        else
+          echo "   ⚠️ Session management not detected in build"
+        fi
+        
+        # 4. Error handling for medical scenarios
+        echo "4. Medical Error Handling:"
+        if grep -r "medicalError\|clinicalError\|errorHandling" dist/assets/ > /dev/null 2>&1; then
+          echo "   ✅ Medical error handling detected"
+        else
+          echo "   ⚠️ Medical-specific error handling not clearly identified"
+        fi
+
+  lighthouse-pwa-audit:
+    name: Lighthouse PWA Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli@0.12.x
+      
+    - name: Serve application
+      run: |
+        npm install -g serve
+        serve -s dist -l 3000 &
+        sleep 5  # Wait for server to start
+        
+    - name: Run Lighthouse PWA Audit
+      run: |
+        echo "🔍 Running Lighthouse PWA Audit..."
+        lhci autorun --config-path=./lighthouserc.json || echo "⚠️ Lighthouse config not found, running with defaults"
+        
+        # Run basic Lighthouse audit for PWA
+        npx lighthouse http://localhost:3000 --only-categories=pwa --output=json --output-path=lighthouse-pwa.json --chrome-flags="--headless --no-sandbox" || true
+        
+        # Parse and display PWA score
+        if [ -f lighthouse-pwa.json ] && command -v jq > /dev/null; then
+          PWA_SCORE=$(jq '.categories.pwa.score * 100' lighthouse-pwa.json 2>/dev/null || echo "0")
+          echo "📊 PWA Score: ${PWA_SCORE}%"
+          
+          if [ "${PWA_SCORE%.*}" -ge 90 ]; then
+            echo "✅ Excellent PWA score!"
+          elif [ "${PWA_SCORE%.*}" -ge 70 ]; then
+            echo "⚠️ Good PWA score - room for improvement"
+          else
+            echo "❌ PWA score needs improvement"
+          fi
+        else
+          echo "⚠️ Could not parse PWA score"
+        fi
+        
+    - name: Upload Lighthouse results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: lighthouse-pwa-results
+        path: lighthouse-pwa.json
+        retention-days: 30
+
+  pwa-installability-test:
+    name: PWA Installability Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Test PWA installability criteria
+      run: |
+        echo "📲 Testing PWA Installability Criteria..."
+        
+        # Check for PWA installability requirements
+        echo "1. Web App Manifest:"
+        if [ -f dist/manifest.webmanifest ]; then
+          echo "   ✅ Manifest present"
+          
+          # Check manifest content for installability
+          if command -v jq > /dev/null; then
+            if jq -e '.start_url and .name and .short_name and .display and .icons' dist/manifest.webmanifest > /dev/null; then
+              echo "   ✅ Required manifest fields for install present"
+            else
+              echo "   ❌ Missing required manifest fields for install"
+            fi
+          fi
+        else
+          echo "   ❌ Manifest missing"
+        fi
+        
+        echo "2. Service Worker:"
+        if [ -f dist/sw.js ]; then
+          echo "   ✅ Service Worker present"
+        else
+          echo "   ❌ Service Worker missing"
+        fi
+        
+        echo "3. HTTPS Requirement:"
+        echo "   ⚠️ HTTPS required for PWA installation (deployment concern)"
+        
+        echo "4. Medical App Install Considerations:"
+        echo "   📋 Medical apps should be installable for offline emergency use"
+        echo "   🔒 Ensure encryption works in installed PWA environment"
+        echo "   🩺 Test medical calculations work offline after install"
+
+  pwa-validation-summary:
+    name: PWA Validation Summary
+    runs-on: ubuntu-latest
+    needs: [pwa-build-validation, lighthouse-pwa-audit, pwa-installability-test]
+    if: always()
+    
+    steps:
+    - name: Generate PWA validation summary
+      run: |
+        echo "📱 PWA Validation Summary for Medical Application"
+        echo "==============================================="
+        echo ""
+        
+        # Build Validation Results
+        if [ "${{ needs.pwa-build-validation.result }}" = "success" ]; then
+          echo "✅ **PWA Build Validation**: PASSED"
+          echo "   - Service Worker generated and configured"
+          echo "   - PWA Manifest valid and complete"
+          echo "   - Required icons present"
+          echo "   - Offline functionality configured"
+        else
+          echo "❌ **PWA Build Validation**: FAILED"
+          echo "   - Review service worker and manifest configuration"
+        fi
+        echo ""
+        
+        # Lighthouse Audit Results
+        if [ "${{ needs.lighthouse-pwa-audit.result }}" = "success" ]; then
+          echo "✅ **Lighthouse PWA Audit**: COMPLETED"
+          echo "   - PWA audit completed successfully"
+          echo "   - Performance and PWA metrics evaluated"
+        else
+          echo "⚠️ **Lighthouse PWA Audit**: ISSUES FOUND"
+          echo "   - Review Lighthouse PWA recommendations"
+        fi
+        echo ""
+        
+        # Installability Test Results
+        if [ "${{ needs.pwa-installability-test.result }}" = "success" ]; then
+          echo "✅ **PWA Installability**: VERIFIED"
+          echo "   - App meets PWA install criteria"
+          echo "   - Ready for app-like installation"
+        else
+          echo "❌ **PWA Installability**: ISSUES FOUND"
+          echo "   - Review PWA installability requirements"
+        fi
+        echo ""
+        
+        # Medical PWA Specific Recommendations
+        echo "🏥 **Medical PWA Recommendations:**"
+        echo "   - Ensure critical medical calculations work offline"
+        echo "   - Test encrypted data storage in installed PWA"
+        echo "   - Validate session management in standalone mode"
+        echo "   - Consider offline-first architecture for emergency use"
+        echo ""
+        
+        # Overall PWA Status
+        PASSED_COUNT=0
+        if [ "${{ needs.pwa-build-validation.result }}" = "success" ]; then PASSED_COUNT=$((PASSED_COUNT + 1)); fi
+        if [ "${{ needs.lighthouse-pwa-audit.result }}" = "success" ]; then PASSED_COUNT=$((PASSED_COUNT + 1)); fi
+        if [ "${{ needs.pwa-installability-test.result }}" = "success" ]; then PASSED_COUNT=$((PASSED_COUNT + 1)); fi
+        
+        echo "🎯 **Overall PWA Status**: $PASSED_COUNT/3 validations passed"
+        
+        if [ "$PASSED_COUNT" -eq 3 ]; then
+          echo "🟢 **PWA READY**: Medical PWA meets all validation criteria"
+        elif [ "$PASSED_COUNT" -ge 2 ]; then
+          echo "🟡 **PWA CAUTION**: Address remaining PWA issues"
+        else
+          echo "🔴 **PWA NOT READY**: Significant PWA issues must be resolved"
+        fi

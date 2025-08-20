@@ -1,0 +1,67 @@
+version: 2
+
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "pmartin1915"
+    assignees:
+      - "pmartin1915"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    # Group minor and patch updates
+    groups:
+      production-dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@types/*"
+          - "@typescript-eslint/*"
+          - "eslint*"
+          - "vitest*"
+          - "@vitest/*"
+          - "typescript"
+      development-dependencies:
+        patterns:
+          - "@types/*"
+          - "@typescript-eslint/*"
+          - "eslint*"
+          - "vitest*"
+          - "@vitest/*"
+          - "typescript"
+    # Ignore major version updates for critical medical dependencies
+    ignore:
+      # Security-related packages - manual review required for major updates
+      - dependency-name: "crypto-js"
+        update-types: ["version-update:semver-major"]
+      # Medical calculation dependencies - extra caution
+      - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
+      # Core framework - manual review for major versions
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    reviewers:
+      - "pmartin1915"
+    assignees:
+      - "pmartin1915"
+    commit-message:
+      prefix: "ci"
+      include: "scope"

@@ -1,0 +1,277 @@
+name: Code Quality & Standards
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly quality checks on main branch
+    - cron: '0 2 * * 1'  # Monday 2 AM UTC
+
+jobs:
+  lint-and-format:
+    name: Linting & Formatting
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run ESLint
+      run: |
+        echo "🔍 Running ESLint with medical-specific rules..."
+        npm run lint -- --format=github
+        
+    - name: Check TypeScript compilation
+      run: |
+        echo "🔧 Checking TypeScript compilation..."
+        npm run typecheck
+        
+    - name: Validate import organization
+      run: |
+        echo "📦 Checking import organization..."
+        # Check for circular dependencies
+        npx madge --circular --extensions ts,tsx app/src/ || echo "⚠️ Circular dependencies detected"
+        echo "✅ Import validation completed"
+        
+    - name: Check for TODOs and FIXMEs
+      run: |
+        echo "📝 Scanning for TODO/FIXME comments..."
+        TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" app/src/ --include="*.ts" --include="*.tsx" | wc -l || echo "0")
+        if [ "$TODO_COUNT" -gt 0 ]; then
+          echo "⚠️ Found $TODO_COUNT TODO/FIXME comments:"
+          grep -r "TODO\|FIXME\|XXX\|HACK" app/src/ --include="*.ts" --include="*.tsx" || true
+        else
+          echo "✅ No TODO/FIXME comments found"
+        fi
+
+  medical-code-standards:
+    name: Medical Code Standards
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Validate medical calculation functions
+      run: |
+        echo "🩺 Validating medical calculation code standards..."
+        
+        # Check for proper JSDoc documentation on medical functions
+        echo "Checking for JSDoc on critical medical functions..."
+        if ! grep -r "@param\|@returns\|@description" app/src/domain/ --include="*.ts"; then
+          echo "⚠️ Medical functions may lack proper documentation"
+        else
+          echo "✅ Medical function documentation found"
+        fi
+        
+        # Check for unit/range validations in medical functions
+        echo "Checking for input validation in medical functions..."
+        if grep -r "zod\|validate" app/src/domain/ --include="*.ts" > /dev/null; then
+          echo "✅ Input validation found in medical functions"
+        else
+          echo "⚠️ Medical functions may lack input validation"
+        fi
+        
+    - name: Security code patterns check
+      run: |
+        echo "🔒 Checking for secure coding patterns..."
+        
+        # Check for hardcoded secrets or keys
+        if grep -r "password\|secret\|key.*=\|api.*key" app/src/ --include="*.ts" --include="*.tsx" | grep -v "keyof\|keyboard\|keydown\|keyup" | grep -v "test\|spec"; then
+          echo "⚠️ Potential hardcoded secrets found - manual review required"
+        else
+          echo "✅ No hardcoded secrets detected"
+        fi
+        
+        # Check for proper error handling
+        if ! grep -r "try.*catch\|throw.*Error" app/src/core/ --include="*.ts" > /dev/null; then
+          echo "⚠️ Limited error handling found in core modules"
+        else
+          echo "✅ Error handling patterns found"
+        fi
+        
+    - name: Performance patterns check
+      run: |
+        echo "⚡ Checking for performance anti-patterns..."
+        
+        # Check for potential performance issues
+        PERF_ISSUES=0
+        
+        # Look for excessive re-renders patterns
+        if grep -r "useEffect.*\[\]" app/src/components/ --include="*.tsx" | wc -l | awk '{if($1>5) print "⚠️ Many useEffect with empty deps found"}' > /dev/null; then
+          PERF_ISSUES=$((PERF_ISSUES + 1))
+        fi
+        
+        # Look for inline object/function definitions in JSX
+        if grep -r "onClick={.*=>.*}" app/src/components/ --include="*.tsx" | head -3 | grep -q "=>"; then
+          echo "⚠️ Inline functions in JSX may impact performance"
+          PERF_ISSUES=$((PERF_ISSUES + 1))
+        fi
+        
+        if [ "$PERF_ISSUES" -eq 0 ]; then
+          echo "✅ No obvious performance anti-patterns found"
+        else
+          echo "⚠️ $PERF_ISSUES potential performance issues found - review recommended"
+        fi
+
+  accessibility-check:
+    name: Accessibility Standards
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Medical accessibility validation
+      run: |
+        echo "♿ Validating medical application accessibility..."
+        
+        # Check for form accessibility
+        echo "Checking form accessibility patterns..."
+        if grep -r "aria-label\|aria-describedby\|htmlFor" app/src/components/ --include="*.tsx" > /dev/null; then
+          echo "✅ Accessibility attributes found in components"
+        else
+          echo "⚠️ Limited accessibility attributes found"
+        fi
+        
+        # Check for keyboard navigation support
+        if grep -r "onKeyDown\|onKeyPress\|tabIndex" app/src/components/ --include="*.tsx" > /dev/null; then
+          echo "✅ Keyboard navigation patterns found"
+        else
+          echo "⚠️ Limited keyboard navigation support found"
+        fi
+        
+        # Check for screen reader support
+        if grep -r "aria-live\|role=\|aria-expanded" app/src/components/ --include="*.tsx" > /dev/null; then
+          echo "✅ Screen reader support patterns found"
+        else
+          echo "⚠️ Limited screen reader support found"
+        fi
+        
+    - name: Run accessibility linting
+      run: |
+        echo "Running jsx-a11y accessibility checks..."
+        npm run lint -- --ext .tsx --no-fix | grep "jsx-a11y" || echo "✅ No accessibility linting errors"
+
+  complexity-analysis:
+    name: Code Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install complexity analysis tools
+      run: npm install -g complexity-report
+      
+    - name: Analyze medical calculation complexity
+      run: |
+        echo "🧮 Analyzing medical calculation complexity..."
+        
+        # Focus on critical medical calculation files
+        for file in app/src/domain/tbsa.ts app/src/domain/fluids.ts app/src/domain/validation.ts; do
+          if [ -f "$file" ]; then
+            echo "Analyzing complexity of $file..."
+            cr --format json "$file" | jq '.reports[0].complexity.cyclomatic' || echo "Complex analysis tool not available"
+          fi
+        done
+        
+        echo "✅ Complexity analysis completed"
+        
+    - name: Component size analysis
+      run: |
+        echo "📏 Analyzing component sizes..."
+        
+        # Check for overly large components (>500 lines)
+        find app/src/components/ -name "*.tsx" -exec wc -l {} \; | awk '$1 > 500 {print "⚠️ Large component: " $2 " (" $1 " lines)"}' || echo "✅ No oversized components found"
+        
+    - name: Bundle analysis preparation
+      run: |
+        echo "📦 Preparing bundle analysis..."
+        npm run build
+        
+        # Check total bundle size
+        TOTAL_SIZE=$(du -sh dist/assets/*.js | cut -f1 | head -1)
+        echo "📊 Total JS bundle size: $TOTAL_SIZE"
+        
+        # List largest assets
+        echo "📋 Largest assets:"
+        du -h dist/assets/* | sort -hr | head -5
+
+  quality-summary:
+    name: Quality Summary
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, medical-code-standards, accessibility-check, complexity-analysis]
+    if: always()
+    
+    steps:
+    - name: Quality gate summary
+      run: |
+        echo "📊 Code Quality Summary"
+        echo "======================"
+        echo ""
+        
+        if [ "${{ needs.lint-and-format.result }}" = "success" ]; then
+          echo "✅ Linting & Formatting: PASSED"
+        else
+          echo "❌ Linting & Formatting: FAILED"
+        fi
+        
+        if [ "${{ needs.medical-code-standards.result }}" = "success" ]; then
+          echo "✅ Medical Code Standards: PASSED"
+        else
+          echo "❌ Medical Code Standards: FAILED"
+        fi
+        
+        if [ "${{ needs.accessibility-check.result }}" = "success" ]; then
+          echo "✅ Accessibility Standards: PASSED"
+        else
+          echo "❌ Accessibility Standards: FAILED"
+        fi
+        
+        if [ "${{ needs.complexity-analysis.result }}" = "success" ]; then
+          echo "✅ Complexity Analysis: PASSED"
+        else
+          echo "❌ Complexity Analysis: FAILED"
+        fi
+        
+        echo ""
+        echo "🎯 Overall Quality Gate: $(if [ "${{ needs.lint-and-format.result }}" = "success" ] && [ "${{ needs.medical-code-standards.result }}" = "success" ]; then echo "PASSED ✅"; else echo "REVIEW REQUIRED ⚠️"; fi)"

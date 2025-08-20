@@ -2,9 +2,10 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useWizardStore } from '@/store/useWizardStore';
+import SecuritySettings from '@/components/SecuritySettings';
 
 interface SettingsProps {
-  onNavigate: (route: 'home' | 'review' | 'settings') => void;
+  onNavigate: (route: 'tbsa' | 'procedure' | 'discharge' | 'history' | 'settings') => void;
 }
 
 export default function Settings({ onNavigate }: SettingsProps) {
@@ -20,23 +21,26 @@ export default function Settings({ onNavigate }: SettingsProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={() => onNavigate('home')}>
+        <Button variant="outline" size="sm" onClick={() => onNavigate('tbsa')}>
           ← Back to Assessment
         </Button>
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
       
+      {/* Professional Security Settings */}
+      <SecuritySettings />
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Data Management</CardTitle>
+            <CardTitle>Legacy Data Management</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              All data is stored locally on your device. No information is transmitted to external servers.
+              Legacy data clearing (use Security Settings above for comprehensive data management).
             </p>
-            <Button variant="destructive" onClick={handleClearData}>
-              Clear All Local Data
+            <Button variant="outline" onClick={handleClearData}>
+              Clear Legacy Data Only
             </Button>
           </CardContent>
         </Card>

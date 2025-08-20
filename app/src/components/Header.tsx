@@ -6,20 +6,28 @@ import {
   WifiOff, 
   Moon, 
   Sun,
-  Download
+  Download,
+  Menu
 } from 'lucide-react';
 import { useWizardStore } from '@/store/useWizardStore';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   sidebarCollapsed: boolean;
+  onNavigateToSettings?: () => void;
+  onToggleMobileSidebar?: () => void;
   className?: string;
 }
 
-export default function Header({ sidebarCollapsed, className }: HeaderProps) {
+// Define BeforeInstallPromptEvent interface
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
+export default function Header({ sidebarCollapsed: _sidebarCollapsed, onNavigateToSettings, onToggleMobileSidebar, className }: HeaderProps) {
   const { settings, updateSettings } = useWizardStore();
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-  const [installPrompt, setInstallPrompt] = React.useState<any>(null);
+  const [installPrompt, setInstallPrompt] = React.useState<BeforeInstallPromptEvent | null>(null);
 
   // Handle online/offline status
   React.useEffect(() => {
@@ -39,13 +47,13 @@ export default function Header({ sidebarCollapsed, className }: HeaderProps) {
   React.useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setInstallPrompt(e);
+      setInstallPrompt(e as BeforeInstallPromptEvent);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
     
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt as EventListener);
     };
   }, []);
 
@@ -63,28 +71,54 @@ export default function Header({ sidebarCollapsed, className }: HeaderProps) {
   };
 
   const goToSettings = () => {
-    // This would trigger navigation to settings
-    // For now, we'll just show it's available
-    console.log('Navigate to settings');
+    if (onNavigateToSettings) {
+      onNavigateToSettings();
+    }
   };
 
   return (
     <header className={cn(
-      'sticky top-0 z-30 bg-background border-b border-border',
-      'transition-all duration-300 ease-in-out',
-      // Adjust left margin based on sidebar state
-      'lg:ml-0',
+      'sticky top-0 z-30 medical-header border-b',
       className
     )}>
       <div className="flex items-center justify-between px-4 py-3">
         {/* App Title */}
         <div className="flex items-center gap-4">
-          {/* Title adjusts based on sidebar collapse state */}
-          <div>
-            <h1 className="text-xl font-bold">Burn Wizard</h1>
-            <p className="text-xs text-muted-foreground hidden sm:block">
-              Educational burn assessment tool
-            </p>
+          {/* Mobile hamburger menu - only visible on mobile */}
+          {onToggleMobileSidebar && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleMobileSidebar}
+              className="lg:hidden focus-ring touch-target"
+              title="Toggle navigation menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
+          
+          {/* App icon and title */}
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <div 
+                className="w-10 h-10 wizard-logo-flame cursor-pointer"
+                style={{ 
+                  imageRendering: 'pixelated',
+                  imageRendering: '-moz-crisp-edges',
+                  imageRendering: 'crisp-edges'
+                }}
+                title="Burn Wizard"
+              />
+              <div className="absolute -inset-1 bg-primary/10 rounded-full -z-10 opacity-0 hover:opacity-100 transition-opacity duration-200"></div>
+            </div>
+            <div>
+              <h1 className="burn-wizard-heading-md text-primary hover:text-primary/80 transition-colors duration-200">
+                Burn Wizard
+              </h1>
+              <p className="burn-wizard-body-sm hidden sm:block">
+                Educational burn assessment tool
+              </p>
+            </div>
           </div>
         </div>
 
@@ -111,7 +145,7 @@ export default function Header({ sidebarCollapsed, className }: HeaderProps) {
               variant="ghost"
               size="sm"
               onClick={handleInstallClick}
-              className="hidden sm:flex"
+              className="hidden sm:flex burn-wizard-secondary-button focus-ring touch-target"
             >
               <Download className="h-4 w-4 mr-1" />
               Install App
@@ -124,6 +158,7 @@ export default function Header({ sidebarCollapsed, className }: HeaderProps) {
             size="icon"
             onClick={toggleDarkMode}
             title={settings.darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="focus-ring touch-target"
           >
             {settings.darkMode ? (
               <Sun className="h-4 w-4" />
@@ -138,6 +173,7 @@ export default function Header({ sidebarCollapsed, className }: HeaderProps) {
             size="icon"
             onClick={goToSettings}
             title="Open settings"
+            className="focus-ring touch-target"
           >
             <Settings className="h-4 w-4" />
           </Button>

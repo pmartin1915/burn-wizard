@@ -47,12 +47,23 @@ This application is designed exclusively for educational purposes and documentat
 
 ## Getting Started
 
+### Quick Launch 🚀
+**Easiest Method**: Double-click `start-burn-wizard.bat` to automatically launch the application!
+
 ### Prerequisites
 - Node.js (version 18 or higher)
 - npm or pnpm package manager
 
-### Installation
+### Installation Options
 
+#### Option 1: One-Click Launch (Recommended)
+1. Double-click `start-burn-wizard.bat` 
+2. The application will automatically:
+   - Install dependencies if needed
+   - Start the development server  
+   - Open in your browser at http://localhost:5173
+
+#### Option 2: Manual Installation
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/pmartin1915/burn-wizard.git

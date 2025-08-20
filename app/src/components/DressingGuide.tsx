@@ -20,16 +20,16 @@ interface DressingGuideProps {
 }
 
 const REGION_MAPPING: Record<string, RegionKey[]> = {
-  face: ['headAnterior', 'headPosterior'],
-  hands: ['handRight', 'handLeft'],
-  arms: ['armRightAnterior', 'armRightPosterior', 'armLeftAnterior', 'armLeftPosterior', 'forearmRightAnterior', 'forearmRightPosterior', 'forearmLeftAnterior', 'forearmLeftPosterior'],
-  torso: ['torsoAnterior', 'torsoPosterior', 'neckAnterior', 'neckPosterior'],
-  legs: ['thighRightAnterior', 'thighRightPosterior', 'thighLeftAnterior', 'thighLeftPosterior', 'legRightAnterior', 'legRightPosterior', 'legLeftAnterior', 'legLeftPosterior'],
-  feet: ['footRight', 'footLeft'],
-  perineum: ['perineum']
+  face: ['Head'],
+  hands: ['R_Hand', 'L_Hand'],
+  arms: ['R_U_Arm', 'L_U_Arm', 'R_L_Arm', 'L_L_Arm'],
+  torso: ['Ant_Trunk', 'Post_Trunk', 'Neck'],
+  legs: ['R_Thigh', 'L_Thigh', 'R_Leg', 'L_Leg'],
+  feet: ['R_Foot', 'L_Foot'],
+  perineum: ['Genitalia']
 };
 
-const REGION_ICONS: Record<string, React.ComponentType<any>> = {
+const REGION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   face: Eye,
   hands: Hand,
   arms: Shield,
@@ -61,7 +61,7 @@ export default function DressingGuide({ className }: DressingGuideProps) {
   }, [regionSelections]);
 
   const isSpecialSiteAffected = React.useMemo(() => {
-    return Object.entries(patientData.specialSites).some(([site, affected]) => affected);
+    return Object.entries(patientData.specialSites).some(([_site, affected]) => affected);
   }, [patientData.specialSites]);
 
   if (affectedRegions.length === 0) {
@@ -225,7 +225,7 @@ export default function DressingGuide({ className }: DressingGuideProps) {
             size="sm" 
             className="mt-4 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20"
           >
-            Emergency Contact: {{BURN_TEAM_PHONE}}
+            Emergency Contact: [Phone Number]
           </Button>
         </CardContent>
       </Card>

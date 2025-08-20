@@ -1,32 +1,37 @@
-import type { AgeBand } from '@/domain/types';
+import type { AgeGroup } from '@/domain/types';
 
 /**
  * Age band definitions and helpers
  */
-export const AGE_BAND_DEFINITIONS: Record<AgeBand, { label: string; minMonths: number; maxMonths: number }> = {
-  infant: {
-    label: 'Infant (0-12 months)',
+export const AGE_BAND_DEFINITIONS: Record<AgeGroup, { label: string; minMonths: number; maxMonths: number }> = {
+  '0': {
+    label: 'Infant (0-1 year)',
     minMonths: 0,
-    maxMonths: 12,
+    maxMonths: 11,
   },
-  '1to4': {
-    label: 'Toddler (1-4 years)',
-    minMonths: 13,
-    maxMonths: 48,
+  '1': {
+    label: 'Toddler (1-5 years)',
+    minMonths: 12,
+    maxMonths: 59,
   },
-  '5to9': {
-    label: 'Child (5-9 years)',
-    minMonths: 49,
-    maxMonths: 108,
+  '5': {
+    label: 'Child (5-10 years)',
+    minMonths: 60,
+    maxMonths: 119,
   },
-  '10to14': {
-    label: 'Adolescent (10-14 years)',
-    minMonths: 109,
-    maxMonths: 168,
+  '10': {
+    label: 'Adolescent (10-15 years)',
+    minMonths: 120,
+    maxMonths: 179,
   },
-  '15plus': {
-    label: 'Adult (15+ years)',
-    minMonths: 169,
+  '15': {
+    label: 'Teen (15-18 years)',
+    minMonths: 180,
+    maxMonths: 215,
+  },
+  'Adult': {
+    label: 'Adult (18+ years)',
+    minMonths: 216,
     maxMonths: 1200,
   },
 };

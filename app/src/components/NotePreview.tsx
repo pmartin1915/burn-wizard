@@ -8,7 +8,8 @@ import {
   CheckCircle, 
   AlertCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  File
 } from 'lucide-react';
 import { useWizardStore } from '@/store/useWizardStore';
 import { 
@@ -18,6 +19,8 @@ import {
   makeBurnHandoffNote 
 } from '@/domain/notes';
 import type { BurnNoteData } from '@/domain/types';
+import { generatePDFReport, redactPHI } from '@/lib/pdfGenerator'; // Import PDF functions
+import BodyMap from '@/components/BodyMap'; // Import BodyMap component
 
 interface NotePreviewProps {
   className?: string;
@@ -29,7 +32,7 @@ const NOTE_TYPES: Array<{
   type: NoteType;
   label: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
 }> = [
   {
     type: 'assessment',
@@ -67,6 +70,8 @@ export default function NotePreview({ className }: NotePreviewProps) {
     handoff: false
   });
   const [isPreviewCollapsed, setIsPreviewCollapsed] = React.useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false); // PDF loading state
+  const bodyMapRef = React.useRef<HTMLDivElement>(null); // Ref for BodyMap capture
 
   // Generate note data
   const noteData: BurnNoteData | null = React.useMemo(() => {
@@ -135,6 +140,49 @@ export default function NotePreview({ className }: NotePreviewProps) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  // Handle PDF export
+  const handleExportPDF = async (noteType: NoteType, content: string) => {
+    if (!noteData) return;
+    
+    try {
+      setIsGeneratingPDF(true);
+      
+      // Redact PHI from content
+      const redactedContent = redactPHI(content);
+      
+      // Capture BodyMap element if available
+      let bodyMapElement: HTMLElement | undefined = undefined;
+      if (bodyMapRef.current) {
+        bodyMapElement = bodyMapRef.current;
+      }
+      
+      // Generate PDF
+        const pdfBytes = await generatePDFReport(
+          redactedContent,
+          bodyMapElement, // Pass captured body map element
+          'Burn Center' // Default institution name
+      );
+      
+      // Create and download PDF using the Uint8Array directly
+      // @ts-expect-error - TypeScript has issues with Uint8Array in Blob constructor
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `burn-${noteType}-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. See console for details.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   if (!noteData) {
@@ -213,6 +261,24 @@ export default function NotePreview({ className }: NotePreviewProps) {
                 Download
               </Button>
               <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportPDF(selectedNoteType, currentNoteContent)}
+                disabled={isGeneratingPDF}
+              >
+                {isGeneratingPDF ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-1"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <File className="h-4 w-4 mr-1" />
+                    Export PDF
+                  </>
+                )}
+              </Button>
+              <Button
                 variant="default"
                 size="sm"
                 onClick={() => handleCopyToClipboard(selectedNoteType, currentNoteContent)}
@@ -289,7 +355,26 @@ export default function NotePreview({ className }: NotePreviewProps) {
                 onClick={() => handleDownloadNote(selectedNoteType, currentNoteContent)}
               >
                 <Download className="h-4 w-4 mr-1" />
-                Download as Text File
+                Download as Text
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExportPDF(selectedNoteType, currentNoteContent)}
+                disabled={isGeneratingPDF}
+              >
+                {isGeneratingPDF ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-1"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <File className="h-4 w-4 mr-1" />
+                    Export as PDF
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
@@ -339,6 +424,11 @@ export default function NotePreview({ className }: NotePreviewProps) {
         </CardContent>
       </Card>
 
+      {/* Hidden BodyMap for PDF capture */}
+      <div ref={bodyMapRef} className="sr-only absolute -left-[9999px]">
+        <BodyMap />
+      </div>
+      
       {/* Educational Disclaimer */}
       <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
         <CardContent className="p-4">
