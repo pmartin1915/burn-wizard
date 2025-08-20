@@ -205,8 +205,8 @@
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    /* Slow, clunky animation like old Mario - 2 seconds per frame, 8 frames total */
-    animation: flameFlicker 16s steps(8, end) infinite;
+    /* Slow, clunky animation like old Mario - 2 seconds per frame, 7 frames total */
+    animation: flameFlicker 14s steps(7, end) infinite;
     /* Pixelated rendering for retro effect */
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-crisp-edges;
@@ -366,33 +366,30 @@
 }
 
 @keyframes flameFlicker {
-  /* Retro pixel-art style - each frame holds for exactly 2 seconds, 8 frames total */
+  /* Retro pixel-art style - each frame holds for exactly 2 seconds, 7 frames total */
   0% {
-    background-image: url('/wizard-logo.png');
+    background-image: url('/wizard-image-1.png');
   }
-  12.5% {
-    background-image: url('/wizard-logo-2.png');
+  14.3% {
+    background-image: url('/wizard-image-2.png');
   }
-  25% {
-    background-image: url('/wizard-logo-3.png');
+  28.6% {
+    background-image: url('/wizard-image-3.png');
   }
-  37.5% {
-    background-image: url('/wizard-logo-4.png');
+  42.9% {
+    background-image: url('/wizard-image-4.png');
   }
-  50% {
-    background-image: url('/wizard-logo-5.png');
+  57.1% {
+    background-image: url('/wizard-image-5.png');
   }
-  62.5% {
-    background-image: url('/wizard-logo-6.png');
+  71.4% {
+    background-image: url('/wizard-image-6.png');
   }
-  75% {
-    background-image: url('/wizard-logo-7.png');
-  }
-  87.5% {
-    background-image: url('/wizard-logo-8.png');
+  85.7% {
+    background-image: url('/wizard-image-7.png');
   }
   100% {
-    background-image: url('/wizard-logo.png');
+    background-image: url('/wizard-image-1.png');
   }
 }
 
