@@ -15,7 +15,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 // Configuration
-const PORT = 5175;
+const PORT = 8080;
 const APP_NAME = 'Burn Wizard';
 const DIST_PATH = path.join(__dirname, 'dist');
 
