@@ -12,7 +12,12 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "desktop": "node desktop-launcher.cjs",
+    "desktop:build": "npm run build && npm run desktop"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",
@@ -26,6 +31,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "crypto-js": "^4.2.0",
+    "express": "^5.1.0",
     "framer-motion": "^10.16.5",
     "html2canvas": "^1.4.1",
     "i18next": "^23.6.0",
@@ -42,6 +48,7 @@
     "zustand": "^4.4.6"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^2.8.1",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.5.1",

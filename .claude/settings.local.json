@@ -36,7 +36,16 @@
       "Bash(cmd /c:*)",
       "Bash(powershell:*)",
       "Bash(start http://localhost:5182)",
-      "Bash(start http://localhost:5184)"
+      "Bash(start http://localhost:5184)",
+      "Bash(rustc:*)",
+      "Bash($env:PATH += \";$env:USERPROFILE\\.cargo\\bin\")",
+      "Bash(.rustup-init.exe --default-host x86_64-pc-windows-msvc --default-toolchain stable --profile minimal -y)",
+      "Bash(npm run tauri:*)",
+      "Bash(npx tauri:*)",
+      "Bash(npm run desktop:build:*)",
+      "Bash(move desktop-launcher.js desktop-launcher.cjs)",
+      "Bash(npm run desktop:*)",
+      "Bash(start http://localhost:5175)"
     ],
     "deny": [],
     "ask": [],

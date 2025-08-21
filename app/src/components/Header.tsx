@@ -103,9 +103,7 @@ export default function Header({ sidebarCollapsed: _sidebarCollapsed, onNavigate
               <div 
                 className="w-10 h-10 wizard-logo-flame cursor-pointer"
                 style={{ 
-                  imageRendering: 'pixelated',
-                  imageRendering: '-moz-crisp-edges',
-                  imageRendering: 'crisp-edges'
+                  imageRendering: 'pixelated'
                 }}
                 title="Burn Wizard"
               />
