@@ -1,10 +1,10 @@
 [package]
-name = "app"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+name = "burn-wizard"
+version = "1.0.0"
+description = "Burn Wizard - Educational burn assessment and fluid management calculator for healthcare professionals"
+authors = ["Perry Martin <perry.martin@student.edu>"]
+license = "MIT"
+repository = "https://github.com/pmartin1915/burn-wizard"
 edition = "2021"
 rust-version = "1.77.2"
 

@@ -45,7 +45,16 @@
       "Bash(npm run desktop:build:*)",
       "Bash(move desktop-launcher.js desktop-launcher.cjs)",
       "Bash(npm run desktop:*)",
-      "Bash(start http://localhost:5175)"
+      "Bash(start http://localhost:5175)",
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(./create-exe-with-icons.bat)",
+      "Bash(start Burn-Wizard.exe)",
+      "Bash(./simple-icon-converter.bat)",
+      "Bash(rcedit:*)",
+      "Bash(npx rcedit:*)",
+      "Bash(where rcedit)",
+      "Bash(\"C:\\Users\\perry\\AppData\\Roaming\\npm\\rcedit.cmd\" \"executables\\Burn-Wizard.exe\" --set-icon \"Burn-Wizard-Icon\\Burn-Wizard.ico\")"
     ],
     "deny": [],
     "ask": [],
