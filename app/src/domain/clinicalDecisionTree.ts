@@ -206,7 +206,7 @@ export const parklandDecisionTree: DecisionNode[] = [
     type: 'assessment',
     branches: [
       {
-        condition: 'HR <60, BP >90/60, SaO2 >90%',
+        condition: 'HR <120, BP >90/60, SaO2 >90%',
         nextNodeId: 'stable-continue',
         rationale: 'Patient vitally stable - continue protocol'
       },
@@ -385,7 +385,7 @@ export function getDecisionExplanation(nodeId: string): {
       title: 'Vital Sign Stability Assessment',
       explanation: 'Vital signs provide additional confirmation of adequate resuscitation beyond urine output monitoring.',
       keyPoints: [
-        'Target HR <60 bpm',
+        'Target HR <120 bpm',
         'Target BP >90/60 mmHg', 
         'Target SaO2 >90%',
         'Consider weight stability'

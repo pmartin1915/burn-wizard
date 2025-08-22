@@ -103,9 +103,9 @@ describe('assessVitalStability', () => {
   
   it('should identify unstable vital signs', () => {
     const result = assessVitalStability({
-      heartRate: 65,
-      systolicBP: 85,
-      oxygenSat: 88
+      heartRate: 125,  // Tachycardia - concerning in burn patients
+      systolicBP: 85,   // Hypotension
+      oxygenSat: 88     // Hypoxemia
     });
     expect(result.isStable).toBe(false);
     expect(result.unstableReasons).toHaveLength(3);

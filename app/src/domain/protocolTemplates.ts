@@ -67,7 +67,7 @@ export const parklandProtocolTemplate: ProtocolTemplate = {
       keyPoints: [
         'Urine output: Primary monitoring parameter',
         'Target: 30-50ml/hr for adults >20kg',
-        'Vital signs: HR <60, BP >90/60, SaO2 >90%',
+        'Vital signs: HR <120, BP >90/60, SaO2 >90%',
         'Hourly assessments and documentation'
       ],
       clinicalPearls: [

@@ -11,7 +11,7 @@
  * 2. MONITORING PROTOCOLS:
  *    - Urine output targets: 30-50ml/hr (adults >20kg)
  *    - Rate adjustments: ±20% based on urine output
- *    - Vital sign stability: HR <60, BP >90/60, SaO2 >90%
+ *    - Vital sign stability: HR <120, BP >90/60, SaO2 >90%
  * 
  * 3. FLUID TYPES:
  *    - Resuscitation: Lactated Ringers (LR)
@@ -256,10 +256,10 @@ export function assessVitalStability(vitals: {
   const unstableReasons: string[] = [];
   const recommendations: string[] = [];
   
-  // Protocol targets: HR <60, BP >90/60, SaO2 >90
-  if (vitals.heartRate !== undefined && vitals.heartRate >= 60) {
-    unstableReasons.push('Heart rate ≥60 bpm');
-    recommendations.push('Monitor heart rate - target <60 bpm');
+  // Protocol targets: HR <120, BP >90/60, SaO2 >90%
+  if (vitals.heartRate !== undefined && vitals.heartRate >= 120) {
+    unstableReasons.push('Heart rate ≥120 bpm (tachycardia)');
+    recommendations.push('Monitor heart rate - target <120 bpm (may indicate hypovolemia)');
   }
   
   if (vitals.systolicBP !== undefined && vitals.systolicBP <= 90) {

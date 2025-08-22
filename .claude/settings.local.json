@@ -54,12 +54,41 @@
       "Bash(rcedit:*)",
       "Bash(npx rcedit:*)",
       "Bash(where rcedit)",
-      "Bash(\"C:\\Users\\perry\\AppData\\Roaming\\npm\\rcedit.cmd\" \"executables\\Burn-Wizard.exe\" --set-icon \"Burn-Wizard-Icon\\Burn-Wizard.ico\")"
+      "Bash(\"C:\\Users\\perry\\AppData\\Roaming\\npm\\rcedit.cmd\" \"executables\\Burn-Wizard.exe\" --set-icon \"Burn-Wizard-Icon\\Burn-Wizard.ico\")",
+      "Bash(pkg:*)",
+      "Bash(Launch-Burn-Wizard.bat)",
+      "Bash(./Launch-Burn-Wizard.bat)",
+      "Bash(\"C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Demo\\Launch-Burn-Wizard.bat\")",
+      "Bash(del:*)",
+      "Bash(\"C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Demo\\Launch-Clinical-Wizard.bat\")",
+      "Bash(git clone:*)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)",
+      "Bash(cargo --version)",
+      "Bash(\"C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Demo\\Launch-ECG-Wizard.bat\")",
+      "Bash(./rustup-init.exe --default-host x86_64-pc-windows-msvc --default-toolchain stable --profile minimal -y)",
+      "Bash(\"%USERPROFILE%\\.cargo\\bin\\cargo.exe\" --version)",
+      "Bash(\"C:\\Users\\perry\\.cargo\\bin\\cargo.exe\" build)",
+      "Bash(./vs_buildtools.exe:*)",
+      "Bash(./tauri-build.bat)",
+      "Bash(rd:*)",
+      "Bash(./tauri-debug-build.bat)",
+      "Bash(start burn-wizard.exe)",
+      "Bash(dir:*)",
+      "Bash(start \"\" \"Burn Wizard (Native).lnk\")",
+      "Bash(start \"\" \"Clinical Wizard (Native).lnk\")",
+      "Bash(start \"\" \"ECG Wizard (Native).lnk\")",
+      "Bash(\"Medical-Wizards-Suite.bat\")",
+      "Bash(start \"\" \"burn-wizard.exe\")",
+      "Bash(start \"\" \"clinical-wizard.exe\")",
+      "Bash(start \"\" \"ecg-wizard.exe\")"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
-      "C:\\c\\projects"
+      "C:\\c\\projects",
+      "C:\\projects\\ecg-wizard",
+      "C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Native"
     ]
   }
 }

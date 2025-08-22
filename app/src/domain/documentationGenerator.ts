@@ -210,7 +210,7 @@ function generateMonitoringPlan(
   } else {
     plan += `- Urine output target: 1-2ml/kg/hr (${patient.weightKg}-${patient.weightKg * 2}ml/hr)\n`;
   }
-  plan += `- Vital signs: HR <60, BP >90/60, SaO2 >90%\n`;
+  plan += `- Vital signs: HR <120, BP >90/60, SaO2 >90%\n`;
   plan += `- Document fluid intake and output\n`;
   plan += `- Record any rate adjustments with rationale\n\n`;
   
