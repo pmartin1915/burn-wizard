@@ -396,7 +396,7 @@ export function shouldAutoAdvanceStep(
   // Require minimum time on step before auto-advancing (prevents instant completion)
   const stepStartTime = stepStartTimes.get(stepKey)!;
   const timeSinceStart = Date.now() - stepStartTime;
-  const minimumStepTime = 1500; // 1.5 seconds minimum
+  const minimumStepTime = 3000; // 3 seconds minimum - increased from 1.5s for better UX
   
   if (timeSinceStart < minimumStepTime) {
     return false;

@@ -138,8 +138,12 @@ export default function InteractiveSVGBodyMap({ className, onToggleView: _onTogg
           stroke={strokeColor}
           strokeWidth="2"
           data-region={regionKey}
-          className="cursor-pointer transition-all duration-200 hover:stroke-primary hover:stroke-4"
+          className="cursor-pointer transition-all duration-200 hover:stroke-primary hover:stroke-4 touch-action-manipulation"
           onClick={() => handleRegionClick(regionKey)}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            handleRegionClick(regionKey);
+          }}
         />
         <title>{`${label}: ${Math.round(fraction * 100)}%`}</title>
       </g>

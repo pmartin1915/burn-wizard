@@ -241,8 +241,9 @@ function TutorialOverlay({
       height: window.innerHeight
     };
 
-    // Smart positioning: try preferred position, fall back to best fit
-    const positions = [step.position || 'bottom', 'bottom', 'top', 'right', 'left', 'center'];
+    // Simplified positioning: try preferred position, then center as fallback
+    // Reduced from 6 positions to 2 to prevent visual jumping
+    const positions = [step.position || 'bottom', 'center'];
     
     for (const position of positions) {
       let top = 0;
@@ -749,10 +750,11 @@ export default function InteractiveTutorial({ className, onNavigate }: Interacti
     
     // Check if current step should auto-advance
     if (shouldAutoAdvanceStep(currentStep, validationContext)) {
-      // Add a longer delay to ensure navigation completes and user can see highlighting
+      // Increased delay to give users time to read and understand the step
+      // Previous: 2500ms (2.5s) was too fast for users to read instructions
       const timer = setTimeout(() => {
         nextStep();
-      }, 2500);
+      }, 6000); // Increased to 6 seconds for better user experience
       
       return () => clearTimeout(timer);
     }
