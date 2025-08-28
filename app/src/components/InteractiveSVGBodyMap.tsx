@@ -151,7 +151,7 @@ export default function InteractiveSVGBodyMap({ className, onToggleView: _onTogg
   };
 
   return (
-    <div className={`space-y-4 ${className}`} data-element="body-map">
+    <div className={`space-y-4 ${className}`} data-element="body-map" data-tour="body-map">
       <Card className="w-full">
         <CardHeader className="pb-4">
           <CardTitle className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -165,7 +165,7 @@ export default function InteractiveSVGBodyMap({ className, onToggleView: _onTogg
               >
                 🔄 {viewOrientation === 'anterior' ? 'Show Back' : 'Show Front'}
               </Button>
-              <span className="tbsa-display font-medium text-primary whitespace-nowrap" data-element="tbsa-display">
+              <span className="tbsa-display font-medium text-primary whitespace-nowrap" data-element="tbsa-display" data-tour="tbsa-display">
                 TBSA: {displayTbsa}%
               </span>
             </div>

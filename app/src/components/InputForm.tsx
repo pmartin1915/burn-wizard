@@ -188,7 +188,7 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
   }, [patientData.ageMonths, regionSelections]);
 
   return (
-    <Card className="w-full burn-wizard-card animate-fade-in-up" data-element="patient-info">
+    <Card className="w-full burn-wizard-card animate-fade-in-up" data-element="patient-info" data-tour="patient-info">
       <CardHeader>
         <CardTitle className="burn-wizard-heading-md">Patient Information</CardTitle>
       </CardHeader>

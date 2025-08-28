@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, X } from 'lucide-react';
 import { useWizardStore } from '@/store/useWizardStore';
+import { GuidedTour } from '@/components/ui/GuidedTour';
 import InputForm from '@/components/InputForm';
 import BodyMap from '@/components/BodyMap';
 import BurnDepthChart from '@/components/BurnDepthChart';
@@ -14,19 +15,26 @@ interface HomeProps {
 }
 
 export default function Home({ onNavigate }: HomeProps) {
-  const { tutorials, markIntroductionSeen } = useWizardStore();
-  const [showWelcome, setShowWelcome] = React.useState(!tutorials.hasSeenIntroduction);
+  const { tutorials, markGuidedTourSeen } = useWizardStore();
+  const [showWelcome, setShowWelcome] = React.useState(!tutorials.hasSeenGuidedTour);
+  const [showTour, setShowTour] = React.useState(false);
 
   const handleStartTutorial = () => {
     setShowWelcome(false);
-    markIntroductionSeen();
-    // Navigate to tutorials tab
-    onNavigate('tutorials');
+    setShowTour(true);
+  };
+
+  const handleTourComplete = () => {
+    markGuidedTourSeen();
+  };
+
+  const handleTourClose = () => {
+    setShowTour(false);
   };
 
   const dismissWelcome = () => {
     setShowWelcome(false);
-    markIntroductionSeen();
+    markGuidedTourSeen();
   };
 
   return (
@@ -113,6 +121,13 @@ export default function Home({ onNavigate }: HomeProps) {
           </div>
         </div>
       </div>
+
+      {/* Guided Tour */}
+      <GuidedTour 
+        isOpen={showTour}
+        onClose={handleTourClose}
+        onComplete={handleTourComplete}
+      />
     </div>
   );
 }

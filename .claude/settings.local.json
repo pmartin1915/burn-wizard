@@ -99,6 +99,9 @@
       "Bash(start:*)",
       "Bash(npm audit:*)",
       "Read(/C:\\projects\\clinical-wizard/**)",
+      "Read(/C:\\projects\\clinical-wizard\\src\\components\\ui/**)",
+      "Read(/C:\\projects\\clinical-wizard/**)",
+      "Read(/C:\\projects\\clinical-wizard/**)",
       "Read(/C:\\projects\\clinical-wizard\\src\\components\\ui/**)"
     ],
     "deny": [],

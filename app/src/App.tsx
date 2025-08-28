@@ -14,7 +14,6 @@ import DressingGuide from './components/DressingGuide';
 import AnalgesiaTips from './components/AnalgesiaTips';
 import NotePreview from './components/NotePreview';
 import ClinicalScenarios from './components/ClinicalScenarios';
-import InteractiveTutorial from './components/InteractiveTutorial';
 import { cn } from './lib/utils';
 
 const queryClient = new QueryClient({
@@ -170,22 +169,10 @@ function App() {
                 {renderTabContent()}
               </div>
               
-              {/* Interactive Tutorials Section */}
+              {/* Tutorials tab now shows placeholder - will be replaced with new GuidedTour trigger */}
               {currentTab === 'tutorials' && (
-                <div className="mt-8">
-                  <InteractiveTutorial onNavigate={(tab) => setCurrentTab(tab as TabRoute)} />
-                </div>
-              )}
-              
-              {/* Interactive Tutorials for other tabs - constrained to match reference width */}
-              {currentTab !== 'tutorials' && (
-                <div className="mt-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div></div>
-                    <div className="max-w-md">
-                      <InteractiveTutorial className="max-w-none" onNavigate={(tab) => setCurrentTab(tab as TabRoute)} />
-                    </div>
-                  </div>
+                <div className="mt-8 p-8 text-center text-muted-foreground">
+                  <p>New guided tour coming soon...</p>
                 </div>
               )}
             </div>

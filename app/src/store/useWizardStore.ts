@@ -3,20 +3,9 @@ import { persist } from 'zustand/middleware';
 import { createEncryptedStorageAdapter } from '@/core/encryptedStorage';
 import type { PatientData, RegionSelection, TbsaResult, FluidResult, AppSettings, BurnDepth, BodyArea, BurnFraction } from '@/domain/types';
 
-// Tutorial state interfaces
-interface TutorialProgress {
-  tutorialId: string;
-  currentStepId: string;
-  completedSteps: string[];
-  startedAt: number;
-  lastActiveAt: number;
-}
-
+// Simplified tutorial state - just track if user has seen the guided tour
 interface TutorialState {
-  completedTutorials: string[];
-  currentProgress: TutorialProgress | null;
-  isActive: boolean;
-  hasSeenIntroduction: boolean;
+  hasSeenGuidedTour: boolean;
 }
 
 interface WizardState {
@@ -45,12 +34,8 @@ interface WizardState {
   // Settings actions
   updateSettings: (settings: Partial<AppSettings>) => void;
   
-  // Tutorial actions
-  startTutorial: (tutorialId: string) => void;
-  completeTutorial: (tutorialId: string) => void;
-  updateTutorialProgress: (stepId: string) => void;
-  closeTutorial: () => void;
-  markIntroductionSeen: () => void;
+  // Tutorial actions (simplified)
+  markGuidedTourSeen: () => void;
   
   // General actions
   clearAllData: () => void;
@@ -77,10 +62,7 @@ const initialSettings: AppSettings = {
 };
 
 const initialTutorialState: TutorialState = {
-  completedTutorials: [],
-  currentProgress: null,
-  isActive: false,
-  hasSeenIntroduction: false,
+  hasSeenGuidedTour: false,
 };
 
 export const useWizardStore = create<WizardState>()(
@@ -137,67 +119,12 @@ export const useWizardStore = create<WizardState>()(
           settings: { ...state.settings, ...newSettings },
         })),
 
-      // Tutorial actions
-      startTutorial: (tutorialId) =>
+      // Tutorial actions (simplified)
+      markGuidedTourSeen: () =>
         set((state) => ({
           tutorials: {
             ...state.tutorials,
-            currentProgress: {
-              tutorialId,
-              currentStepId: '',
-              completedSteps: [],
-              startedAt: Date.now(),
-              lastActiveAt: Date.now(),
-            },
-            isActive: true,
-          },
-        })),
-
-      completeTutorial: (tutorialId) =>
-        set((state) => ({
-          tutorials: {
-            ...state.tutorials,
-            completedTutorials: [...state.tutorials.completedTutorials, tutorialId],
-            currentProgress: null,
-            isActive: false,
-          },
-        })),
-
-      updateTutorialProgress: (stepId) =>
-        set((state) => {
-          if (!state.tutorials.currentProgress) return state;
-          
-          const updatedCompletedSteps = state.tutorials.currentProgress.completedSteps.includes(stepId)
-            ? state.tutorials.currentProgress.completedSteps
-            : [...state.tutorials.currentProgress.completedSteps, stepId];
-
-          return {
-            tutorials: {
-              ...state.tutorials,
-              currentProgress: {
-                ...state.tutorials.currentProgress,
-                currentStepId: stepId,
-                completedSteps: updatedCompletedSteps,
-                lastActiveAt: Date.now(),
-              },
-            },
-          };
-        }),
-
-      closeTutorial: () =>
-        set((state) => ({
-          tutorials: {
-            ...state.tutorials,
-            currentProgress: null,
-            isActive: false,
-          },
-        })),
-
-      markIntroductionSeen: () =>
-        set((state) => ({
-          tutorials: {
-            ...state.tutorials,
-            hasSeenIntroduction: true,
+            hasSeenGuidedTour: true,
           },
         })),
 

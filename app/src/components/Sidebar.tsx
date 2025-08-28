@@ -157,6 +157,7 @@ export default function Sidebar({
                     }
                   }}
                   data-tab={item.id}
+                  data-tour={item.id === 'scenarios' ? 'scenarios' : undefined}
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left touch-target',
                     'transition-all duration-200 hover:bg-accent hover:text-accent-foreground hover:translate-x-1 hover:shadow-sm',
