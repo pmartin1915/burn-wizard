@@ -19,6 +19,7 @@ import {
   getTutorialById,
   validateTutorialStep,
   shouldAutoAdvanceStep,
+  clearStepTimings,
   type Tutorial,
   type TutorialStep
 } from '@/domain/tutorialSteps';
@@ -58,13 +59,79 @@ function TutorialOverlay({
   onNavigate,
   validationContext
 }: TutorialOverlayProps) {
-  const [targetElement, setTargetElement] = React.useState<Element | null>(null);
-  const [additionalElements, setAdditionalElements] = React.useState<Element[]>([]);
+  const [targetElement, setTargetElement] = React.useState<HTMLElement | null>(null);
+  const [additionalElements, setAdditionalElements] = React.useState<HTMLElement[]>([]);
+  
+  // Drag functionality state
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
+  const [position, setPosition] = React.useState<{ x: number; y: number } | null>(null);
+  const cardRef = React.useRef<HTMLDivElement>(null);
 
   // Check if current step validation is satisfied
   const isStepValid = validationContext 
     ? validateTutorialStep(step, validationContext)
     : true;
+
+  // Drag event handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!cardRef.current) return;
+    
+    const rect = cardRef.current.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    
+    setIsDragging(true);
+    setDragOffset({ x: offsetX, y: offsetY });
+    
+    // Set initial position if not already set
+    if (!position) {
+      setPosition({ x: rect.left, y: rect.top });
+    }
+  };
+
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
+    if (!isDragging || !cardRef.current) return;
+    
+    const cardWidth = cardRef.current.offsetWidth;
+    const cardHeight = cardRef.current.offsetHeight;
+    
+    // Calculate new position
+    let newX = e.clientX - dragOffset.x;
+    let newY = e.clientY - dragOffset.y;
+    
+    // Apply boundary constraints
+    const margin = 10;
+    newX = Math.max(margin, Math.min(window.innerWidth - cardWidth - margin, newX));
+    newY = Math.max(margin, Math.min(window.innerHeight - cardHeight - margin, newY));
+    
+    setPosition({ x: newX, y: newY });
+  }, [isDragging, dragOffset]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Add global mouse event listeners for dragging
+  React.useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'none'; // Prevent text selection while dragging
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.userSelect = '';
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  // Reset position when step changes to allow smart positioning
+  React.useEffect(() => {
+    setPosition(null);
+    setIsDragging(false);
+  }, [step.id]);
 
   React.useEffect(() => {
     // Auto-navigate to the correct tab for specific tutorial steps
@@ -77,15 +144,22 @@ function TutorialOverlay({
     
     if (step.target) {
       // Wait a bit for navigation to complete before finding target element
-      const findTarget = () => {
-        const element = document.querySelector(step.target!);
+      const findTarget = (attempt = 1, maxAttempts = 5) => {
+        const element = document.querySelector(step.target!) as HTMLElement;
+        
+        if (!element && attempt < maxAttempts) {
+          // Element not found, try again after a short delay
+          setTimeout(() => findTarget(attempt + 1, maxAttempts), 200);
+          return;
+        }
+        
         setTargetElement(element);
         
         // Find additional target elements
-        const additionalEls: Element[] = [];
+        const additionalEls: HTMLElement[] = [];
         if (step.additionalTargets) {
           step.additionalTargets.forEach(selector => {
-            const el = document.querySelector(selector);
+            const el = document.querySelector(selector) as HTMLElement;
             if (el) additionalEls.push(el);
           });
         }
@@ -98,22 +172,40 @@ function TutorialOverlay({
       };
       
       // Delay to allow navigation to complete
-      setTimeout(findTarget, 100);
+      setTimeout(() => findTarget(), 300);
     }
   }, [step.target, step.id, step.additionalTargets, onNavigate]);
 
-  // Recalculate position on window resize
+  // Recalculate position on window resize and step changes
   React.useEffect(() => {
     const handleResize = () => {
       // Force re-render to recalculate position
-      if (targetElement) {
-        setTargetElement(targetElement);
+      if (targetElement && step.target) {
+        const freshElement = document.querySelector(step.target) as HTMLElement;
+        if (freshElement) {
+          setTargetElement(freshElement);
+        }
       }
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [targetElement]);
+  }, [targetElement, step.target]);
+
+  // Force position recalculation when step changes (for previous/next navigation)
+  React.useEffect(() => {
+    if (step.target && targetElement) {
+      // Small delay to ensure DOM is ready, then refresh target element
+      const refreshTimer = setTimeout(() => {
+        const freshElement = document.querySelector(step.target!) as HTMLElement;
+        if (freshElement && freshElement !== targetElement) {
+          setTargetElement(freshElement);
+        }
+      }, 50);
+      
+      return () => clearTimeout(refreshTimer);
+    }
+  }, [step.id, step.target]);
 
   const getPositionClasses = () => {
     // Always use fixed positioning with smart placement and high z-index
@@ -121,8 +213,17 @@ function TutorialOverlay({
   };
 
   const getPositionStyles = () => {
+    // Use dragged position if available
+    if (position) {
+      return {
+        top: `${position.y}px`,
+        left: `${position.x}px`,
+        transform: 'none'
+      };
+    }
+    
+    // Always center if no target element or center position specified
     if (!targetElement || step.position === 'center') {
-      // Center on screen
       return {
         top: '50%',
         left: '50%',
@@ -131,110 +232,141 @@ function TutorialOverlay({
     }
 
     const rect = targetElement.getBoundingClientRect();
-    const margin = 20;
+    const margin = 20; // Reduced margin for better fit
     const dialogWidth = 384; // max-w-md is roughly 384px
-    const dialogHeight = 300; // estimated dialog height
+    const maxDialogHeight = Math.min(600, window.innerHeight * 0.8); // Dynamic height
     
     const viewport = {
       width: window.innerWidth,
       height: window.innerHeight
     };
 
-    let top = 0;
-    let left = 0;
-    let transform = '';
+    // Smart positioning: try preferred position, fall back to best fit
+    const positions = [step.position || 'bottom', 'bottom', 'top', 'right', 'left', 'center'];
+    
+    for (const position of positions) {
+      let top = 0;
+      let left = 0;
+      let transform = '';
+      let isValid = true;
 
-    // Calculate preferred position
-    switch (step.position) {
-      case 'top':
-        top = rect.top - dialogHeight - margin;
-        left = rect.left + rect.width / 2;
-        transform = 'translateX(-50%)';
-        
-        // If too high, move below target
-        if (top < margin) {
+      switch (position) {
+        case 'top':
+          top = rect.top - maxDialogHeight - margin;
+          left = Math.max(margin, Math.min(viewport.width - dialogWidth - margin, rect.left + rect.width / 2 - dialogWidth / 2));
+          transform = 'translateY(0)';
+          isValid = top >= margin;
+          break;
+          
+        case 'bottom':
           top = rect.bottom + margin;
-        }
-        break;
-        
-      case 'bottom':
-        top = rect.bottom + margin;
-        left = rect.left + rect.width / 2;
-        transform = 'translateX(-50%)';
-        
-        // If too low, move above target
-        if (top + dialogHeight > viewport.height - margin) {
-          top = rect.top - dialogHeight - margin;
-        }
-        break;
-        
-      case 'left':
-        top = rect.top + rect.height / 2;
-        left = rect.left - dialogWidth - margin;
-        transform = 'translateY(-50%)';
-        
-        // If too far left, move to right side
-        if (left < margin) {
-          left = rect.right + margin;
-        }
-        break;
-        
-      case 'right':
-        top = rect.top + rect.height / 2;
-        left = rect.right + margin;
-        transform = 'translateY(-50%)';
-        
-        // If too far right, move to left side
-        if (left + dialogWidth > viewport.width - margin) {
+          left = Math.max(margin, Math.min(viewport.width - dialogWidth - margin, rect.left + rect.width / 2 - dialogWidth / 2));
+          transform = 'translateY(0)';
+          isValid = top + maxDialogHeight <= viewport.height - margin;
+          break;
+          
+        case 'left':
+          top = Math.max(margin, Math.min(viewport.height - maxDialogHeight - margin, rect.top + rect.height / 2 - maxDialogHeight / 2));
           left = rect.left - dialogWidth - margin;
-        }
-        break;
-        
-      default:
-        // Fallback to center
+          transform = 'translateX(0)';
+          isValid = left >= margin;
+          break;
+          
+        case 'right':
+          top = Math.max(margin, Math.min(viewport.height - maxDialogHeight - margin, rect.top + rect.height / 2 - maxDialogHeight / 2));
+          left = rect.right + margin;
+          transform = 'translateX(0)';
+          isValid = left + dialogWidth <= viewport.width - margin;
+          break;
+          
+        case 'center':
+          return {
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)'
+          };
+      }
+
+      if (isValid) {
         return {
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)'
+          top: `${Math.max(margin, top)}px`,
+          left: `${Math.max(margin, left)}px`,
+          transform
         };
+      }
     }
 
-    // Final boundary checks - if still off screen, center it
-    if (left < margin || left + dialogWidth > viewport.width - margin ||
-        top < margin || top + dialogHeight > viewport.height - margin) {
-      return {
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)'
-      };
-    }
-
+    // Ultimate fallback: center on screen
     return {
-      top: `${top}px`,
-      left: `${left}px`,
-      transform
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
     };
   };
 
   React.useEffect(() => {
     // Add highlight to primary target element
     if (targetElement) {
-      targetElement.classList.add('tutorial-highlight');
+      // Store original styles for cleanup
+      const originalStyles = new Map();
+      originalStyles.set('position', targetElement.style.position);
+      originalStyles.set('zIndex', targetElement.style.zIndex);
+      originalStyles.set('backgroundColor', targetElement.style.backgroundColor);
+      originalStyles.set('borderRadius', targetElement.style.borderRadius);
+      originalStyles.set('transition', targetElement.style.transition);
+      originalStyles.set('transform', targetElement.style.transform);
+      originalStyles.set('boxShadow', targetElement.style.boxShadow);
+      originalStyles.set('filter', targetElement.style.filter);
+      originalStyles.set('isolation', targetElement.style.isolation);
+      
+      // Apply bright highlighting like the tutorial dialog - all primary targets get same treatment
+      const computedStyle = window.getComputedStyle(targetElement);
+      if (computedStyle.position !== 'fixed') {
+        targetElement.style.position = originalStyles.get('position') || 'relative';
+      }
+      targetElement.style.zIndex = '9999';
+      targetElement.style.isolation = 'isolate'; // Create new stacking context
+      targetElement.style.backgroundColor = 'white'; // Same as tutorial dialog
+      targetElement.style.borderRadius = '12px';
+      targetElement.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+      targetElement.style.transform = 'scale(1.05)';
+      targetElement.style.boxShadow = `
+        0 0 0 3px rgba(45, 158, 142, 0.4),
+        0 0 20px rgba(45, 158, 142, 0.3),
+        0 15px 35px -5px rgba(45, 158, 142, 0.25),
+        0 25px 65px -15px rgba(45, 158, 142, 0.15)
+      `;
+      targetElement.style.filter = 'brightness(1.15) saturate(1.2) contrast(1.05)';
       
       // Add action type for enhanced styling
       if (step.action) {
         targetElement.setAttribute('data-action', step.action);
       }
       
-      // Ensure the element and its parents have proper z-index for visibility above backdrop
-      const originalStyles = new Map();
+      // Set transform origin to prevent shifting
+      const rect = targetElement.getBoundingClientRect();
+      const isBottomRight = rect.right > window.innerWidth * 0.8 && rect.bottom > window.innerHeight * 0.8;
+      targetElement.style.transformOrigin = isBottomRight ? 'bottom right' : 'center';
+      
+      // Store original styles for cleanup
+      targetElement.dataset.originalStyles = JSON.stringify(Object.fromEntries(originalStyles));
+      
+      // Ensure parent containers have proper z-index
+      const parentOriginalStyles = new Map();
       let element = targetElement.parentElement;
       while (element && element !== document.body) {
-        if (element.tagName.toLowerCase() === 'aside') {
-          // Found the sidebar container
-          originalStyles.set(element, element.style.zIndex);
+        if (element.tagName.toLowerCase() === 'aside' || 
+            element.classList.contains('burn-wizard-card') ||
+            element.getAttribute('data-element') === 'patient-info' ||
+            element.getAttribute('data-element') === 'body-map' ||
+            element.getAttribute('data-element') === 'tbsa-display' ||
+            element.getAttribute('data-field') === 'burn-depth-selector' ||
+            element.getAttribute('data-region') === 'Head' ||
+            element.classList.contains('card') ||
+            element.classList.contains('bg-card')) {
+          // Found a container that needs elevated z-index (above backdrop at 9990)
+          parentOriginalStyles.set(element, element.style.zIndex);
           element.style.zIndex = '9999';
-          break;
         }
         element = element.parentElement;
       }
@@ -261,7 +393,22 @@ function TutorialOverlay({
       }
       
       return () => {
-        targetElement.classList.remove('tutorial-highlight');
+        // Restore original styles
+        if (targetElement.dataset.originalStyles) {
+          const originalStyles = JSON.parse(targetElement.dataset.originalStyles);
+          targetElement.style.position = originalStyles.position || '';
+          targetElement.style.zIndex = originalStyles.zIndex || '';
+          targetElement.style.backgroundColor = originalStyles.backgroundColor || '';
+          targetElement.style.borderRadius = originalStyles.borderRadius || '';
+          targetElement.style.transition = originalStyles.transition || '';
+          targetElement.style.transform = originalStyles.transform || '';
+          targetElement.style.boxShadow = originalStyles.boxShadow || '';
+          targetElement.style.filter = originalStyles.filter || '';
+          targetElement.style.isolation = originalStyles.isolation || '';
+          targetElement.style.transformOrigin = '';
+          delete targetElement.dataset.originalStyles;
+        }
+        
         if (step.action) {
           targetElement.removeAttribute('data-action');
         }
@@ -269,8 +416,8 @@ function TutorialOverlay({
           targetElement.removeEventListener('click', handleTutorialClick, false);
         }
         
-        // Restore original z-index values
-        for (const [element, originalZIndex] of originalStyles) {
+        // Restore parent container z-index values
+        for (const [element, originalZIndex] of parentOriginalStyles) {
           if (originalZIndex) {
             element.style.zIndex = originalZIndex;
           } else {
@@ -284,33 +431,98 @@ function TutorialOverlay({
   // Add highlighting to additional target elements
   React.useEffect(() => {
     if (additionalElements.length > 0) {
-      additionalElements.forEach(element => {
-        element.classList.add('tutorial-highlight-secondary');
+      const elementsData = new Map();
+      
+      additionalElements.forEach((element, index) => {
+        // Give main container elements the same bright highlighting as primary targets
+        const isMainContainer = element.getAttribute('data-element') === 'patient-info' ||
+                               element.getAttribute('data-element') === 'body-map' ||
+                               element.getAttribute('data-element') === 'tbsa-display' ||
+                               element.getAttribute('data-field') === 'burn-depth-selector' ||
+                               element.getAttribute('data-region') === 'Head';
+        
+        if (isMainContainer) {
+          // Store original styles
+          const originalStyles = {
+            position: element.style.position,
+            zIndex: element.style.zIndex,
+            backgroundColor: element.style.backgroundColor,
+            borderRadius: element.style.borderRadius,
+            transition: element.style.transition,
+            transform: element.style.transform,
+            boxShadow: element.style.boxShadow,
+            filter: element.style.filter,
+            isolation: element.style.isolation
+          };
+          elementsData.set(element, originalStyles);
+          
+          // Apply bright highlighting like tutorial dialog
+          const computedStyle = window.getComputedStyle(element);
+          if (computedStyle.position !== 'fixed') {
+            element.style.position = originalStyles.position || 'relative';
+          }
+          element.style.zIndex = '9999';
+          element.style.isolation = 'isolate'; // Create new stacking context
+          element.style.backgroundColor = 'white'; // Same as tutorial dialog
+          element.style.borderRadius = '12px';
+          element.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+          element.style.transform = 'scale(1.05)';
+          element.style.boxShadow = `
+            0 0 0 3px rgba(45, 158, 142, 0.4),
+            0 0 20px rgba(45, 158, 142, 0.3),
+            0 15px 35px -5px rgba(45, 158, 142, 0.25),
+            0 25px 65px -15px rgba(45, 158, 142, 0.15)
+          `;
+          element.style.filter = 'brightness(1.15) saturate(1.2) contrast(1.05)';
+          element.style.transformOrigin = 'center';
+        } else {
+          // Other additional elements get secondary highlighting (keep CSS-based)
+          element.classList.add('tutorial-highlight-secondary');
+        }
       });
 
       return () => {
         additionalElements.forEach(element => {
-          element.classList.remove('tutorial-highlight-secondary');
+          const originalStyles = elementsData.get(element);
+          if (originalStyles) {
+            // Restore bright highlighted elements
+            element.style.position = originalStyles.position || '';
+            element.style.zIndex = originalStyles.zIndex || '';
+            element.style.backgroundColor = originalStyles.backgroundColor || '';
+            element.style.borderRadius = originalStyles.borderRadius || '';
+            element.style.transition = originalStyles.transition || '';
+            element.style.transform = originalStyles.transform || '';
+            element.style.boxShadow = originalStyles.boxShadow || '';
+            element.style.filter = originalStyles.filter || '';
+            element.style.isolation = originalStyles.isolation || '';
+            element.style.transformOrigin = '';
+          } else {
+            // Remove CSS-based secondary highlighting
+            element.classList.remove('tutorial-highlight-secondary');
+          }
         });
       };
     }
-  }, [additionalElements]);
+  }, [additionalElements, step.id]);
 
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9990]" />
+      <div className="fixed inset-0 bg-black/60 z-[9990]" />
       
       {/* Tutorial Card */}
       <Card 
+        ref={cardRef}
         className={cn(
-          'w-full max-w-md shadow-2xl border-primary/20 bg-white dark:bg-card',
+          'w-full max-w-md shadow-2xl border-primary/20 bg-white dark:bg-card max-h-[80vh] overflow-y-auto',
           step.emphasize && 'border-primary',
-          getPositionClasses()
+          getPositionClasses(),
+          isDragging && 'cursor-grabbing select-none',
+          !isDragging && 'cursor-grab'
         )}
-        style={{...getPositionStyles(), zIndex: 9999}}
+        style={{...getPositionStyles(), zIndex: 9999, maxHeight: `${Math.min(600, window.innerHeight * 0.8)}px`}}
       >
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3" onMouseDown={handleMouseDown}>
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -327,6 +539,7 @@ function TutorialOverlay({
               variant="ghost"
               size="icon"
               onClick={onClose}
+              onMouseDown={(e) => e.stopPropagation()}
               className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
@@ -408,6 +621,7 @@ function TutorialOverlay({
               variant="outline"
               size="sm"
               onClick={onPrevious}
+              onMouseDown={(e) => e.stopPropagation()}
               disabled={isFirst}
               className="flex items-center gap-1"
             >
@@ -417,6 +631,7 @@ function TutorialOverlay({
             
             <Button
               onClick={onNext}
+              onMouseDown={(e) => e.stopPropagation()}
               size="sm"
               className={cn(
                 "flex items-center gap-1",
@@ -475,6 +690,9 @@ export default function InteractiveTutorial({ className, onNavigate }: Interacti
   }), [currentRoute, patientData, regionSelections]);
 
   const startTutorial = (tutorial: Tutorial) => {
+    // Clear any previous step timings for clean restart
+    clearStepTimings();
+    
     startTutorialAction(tutorial.id);
     // Set to first step
     if (tutorial.steps.length > 0) {
@@ -531,10 +749,10 @@ export default function InteractiveTutorial({ className, onNavigate }: Interacti
     
     // Check if current step should auto-advance
     if (shouldAutoAdvanceStep(currentStep, validationContext)) {
-      // Add a small delay to make the user experience smoother
+      // Add a longer delay to ensure navigation completes and user can see highlighting
       const timer = setTimeout(() => {
         nextStep();
-      }, 1000);
+      }, 2500);
       
       return () => clearTimeout(timer);
     }
@@ -638,7 +856,7 @@ export default function InteractiveTutorial({ className, onNavigate }: Interacti
       <style>{`
         .tutorial-highlight {
           position: relative;
-          z-index: 9999 !important;
+          z-index: 9995 !important;
           border-radius: 8px;
           transition: all 0.3s ease-in-out;
           box-shadow: 
@@ -652,12 +870,57 @@ export default function InteractiveTutorial({ className, onNavigate }: Interacti
         /* Ensure parent containers of highlighted elements also have proper z-index */
         .tutorial-highlight,
         .tutorial-highlight * {
-          z-index: 9999 !important;
+          z-index: 9995 !important;
         }
         
         /* Special handling for sidebar during tutorials */
         aside:has(.tutorial-highlight) {
-          z-index: 9999 !important;
+          z-index: 9995 !important;
+        }
+        
+        /* Special handling for patient info cards and other containers */
+        .burn-wizard-card:has(.tutorial-highlight),
+        [data-element="patient-info"]:has(.tutorial-highlight),
+        [data-element="body-map"]:has(.tutorial-highlight),
+        [data-element="tbsa-display"]:has(.tutorial-highlight),
+        [data-field="burn-depth-selector"]:has(.tutorial-highlight),
+        [data-region="Head"]:has(.tutorial-highlight),
+        .card:has(.tutorial-highlight) {
+          z-index: 9995 !important;
+        }
+        
+        /* Special handling for SVG elements in tutorials */
+        svg .tutorial-highlight,
+        svg path.tutorial-highlight {
+          stroke: #2d9e8e !important;
+          stroke-width: 4 !important;
+          filter: drop-shadow(0 0 8px rgba(45, 158, 142, 0.6));
+        }
+        
+        /* Make all main tutorial target containers glow with bright highlighting */
+        [data-element="patient-info"].tutorial-highlight,
+        [data-element="body-map"].tutorial-highlight,
+        [data-element="tbsa-display"].tutorial-highlight,
+        [data-field="burn-depth-selector"].tutorial-highlight,
+        [data-region="Head"].tutorial-highlight {
+          transform: scale(1.05);
+          background-color: white !important;
+          border-radius: 12px !important;
+          box-shadow: 
+            0 0 0 3px rgba(45, 158, 142, 0.4),
+            0 0 20px rgba(45, 158, 142, 0.3),
+            0 15px 35px -5px rgba(45, 158, 142, 0.25),
+            0 25px 65px -15px rgba(45, 158, 142, 0.15) !important;
+          filter: brightness(1.15) saturate(1.2) contrast(1.05) !important;
+        }
+        
+        /* Ensure nested elements also get proper highlighting */
+        [data-element="patient-info"] .tutorial-highlight,
+        [data-element="body-map"] .tutorial-highlight,
+        [data-element="tbsa-display"] .tutorial-highlight,
+        [data-field="burn-depth-selector"] .tutorial-highlight,
+        [data-region="Head"] .tutorial-highlight {
+          transform: scale(1.05);
         }
         
         .tutorial-highlight::before {
@@ -750,7 +1013,7 @@ export default function InteractiveTutorial({ className, onNavigate }: Interacti
         /* Secondary highlight for additional elements - more subtle */
         .tutorial-highlight-secondary {
           position: relative;
-          z-index: 9998 !important;
+          z-index: 9995 !important;
           border-radius: 8px;
           transition: all 0.3s ease-in-out;
           box-shadow: 

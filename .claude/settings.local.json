@@ -81,14 +81,33 @@
       "Bash(\"Medical-Wizards-Suite.bat\")",
       "Bash(start \"\" \"burn-wizard.exe\")",
       "Bash(start \"\" \"clinical-wizard.exe\")",
-      "Bash(start \"\" \"ecg-wizard.exe\")"
+      "Bash(start \"\" \"ecg-wizard.exe\")",
+      "Bash(git reset:*)",
+      "Bash(npm run:*)",
+      "Bash(npm start)",
+      "Bash(PORT=3001 npm start)",
+      "Bash(start http://localhost:3001)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(PORT=3002 npm start)",
+      "Bash(start http://localhost:3002)",
+      "WebFetch(domain:api-docs.deepseek.com)",
+      "Bash(setx:*)",
+      "Bash(start claude-provider-switcher.bat)",
+      "Bash(\"C:\\Users\\perry\\AppData\\Roaming\\npm\\rcedit.cmd\" \"C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Native\\burn-wizard.exe\" --set-icon \"C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Demo\\Burn-Wizard-Icon\\Burn-Wizard.ico\")",
+      "Bash(\"C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Native\\Medical-Wizards-Suite-Native.bat\")",
+      "Bash(start:*)",
+      "Bash(npm audit:*)",
+      "Read(/C:\\projects\\clinical-wizard/**)",
+      "Read(/C:\\projects\\clinical-wizard\\src\\components\\ui/**)"
     ],
     "deny": [],
     "ask": [],
     "additionalDirectories": [
       "C:\\c\\projects",
       "C:\\projects\\ecg-wizard",
-      "C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Native"
+      "C:\\Users\\perry\\OneDrive\\Desktop\\Medical-Wizards-Native",
+      "C:\\Users\\perry\\AppData\\Roaming\\npm"
     ]
   }
 }

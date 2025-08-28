@@ -45,13 +45,17 @@ function App() {
       try {
         // Initialize basic security
         await initializeSecurity();
-        console.log('🔒 Security system initialized successfully');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔒 Security system initialized successfully');
+        }
         
         // Initialize session management (includes encryption)
         const sessionStarted = await sessionManager.startSession();
         if (sessionStarted) {
           const encryptionStatus = getEncryptionStatus();
-          console.log(`🔒 Session started with encryption: ${encryptionStatus.available ? 'enabled' : 'disabled'}`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`🔒 Session started with encryption: ${encryptionStatus.available ? 'enabled' : 'disabled'}`);
+          }
         }
       } catch (error) {
         console.error('❌ Security initialization failed:', error);

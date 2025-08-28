@@ -84,7 +84,9 @@ export class EncryptedStorage {
       }
       
       this.initialized = true;
-      console.info(`🔒 Storage initialized (encryption: ${this.options.encryptionEnabled ? 'enabled' : 'disabled'})`);
+      if (process.env.NODE_ENV === 'development') {
+        console.info(`🔒 Storage initialized (encryption: ${this.options.encryptionEnabled ? 'enabled' : 'disabled'})`);
+      }
       return true;
     } catch (error) {
       console.error('🔒 Storage initialization failed:', error);
@@ -281,7 +283,9 @@ export class EncryptedStorage {
         
         // Version check
         if (metadata.version !== this.options.version) {
-          console.info(`🔒 Storage version mismatch (stored: ${metadata.version}, current: ${this.options.version})`);
+          if (process.env.NODE_ENV === 'development') {
+            console.info(`🔒 Storage version mismatch (stored: ${metadata.version}, current: ${this.options.version})`);
+          }
           // Could implement migration logic here
         }
         
@@ -319,7 +323,9 @@ export class EncryptedStorage {
     try {
       localStorage.clear();
       clearEncryptionKeys();
-      console.info('🔒 Storage and encryption keys cleared');
+      if (process.env.NODE_ENV === 'development') {
+        console.info('🔒 Storage and encryption keys cleared');
+      }
     } catch (error) {
       console.error('🔒 Failed to clear storage:', error);
     }

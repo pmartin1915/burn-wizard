@@ -66,9 +66,9 @@ Ready to become a burn assessment wizard? Let's begin!`,
 • **Procedure Note** - Documentation and reporting
 • **Settings** - Customize your experience
 
-The sidebar collapses on desktop and becomes a mobile menu on phones. Try clicking on "TBSA Assessment" to continue.`,
+Click on the TBSA Assessment Tab or press next to continue.`,
         target: '[data-tab="tbsa"]',
-        position: 'right',
+        position: 'bottom',
         action: 'click',
         validation: {
           type: 'route',
@@ -83,10 +83,11 @@ The sidebar collapses on desktop and becomes a mobile menu on phones. Try clicki
 Age is crucial because children have different body proportions than adults. The Lund-Browder method automatically adjusts percentages based on age.
 
 The entire Patient Information panel is highlighted, with special attention to the age input field where you can specify the patient's age in months.`,
-        target: '[data-field="age"]',
-        additionalTargets: ['[data-element="patient-info"]'],
+        target: '[data-element="patient-info"]',
+        additionalTargets: ['[data-field="age"]'],
         position: 'right', 
         action: 'observe',
+        emphasize: true,
       },
       {
         id: 'body-map-intro',
@@ -371,6 +372,9 @@ export function validateTutorialStep(
  * @param currentContext - Current app state context
  * @returns boolean indicating if step should auto-advance
  */
+// Track when steps were first reached to prevent immediate auto-advance
+const stepStartTimes = new Map<string, number>();
+
 export function shouldAutoAdvanceStep(
   step: TutorialStep,
   currentContext: {
@@ -382,10 +386,31 @@ export function shouldAutoAdvanceStep(
   // Only auto-advance if there's validation and it passes
   if (!step.validation) return false;
   
+  // Track when this step was first encountered
+  const stepKey = `${step.id}`;
+  if (!stepStartTimes.has(stepKey)) {
+    stepStartTimes.set(stepKey, Date.now());
+    return false; // Don't auto-advance immediately on first encounter
+  }
+  
+  // Require minimum time on step before auto-advancing (prevents instant completion)
+  const stepStartTime = stepStartTimes.get(stepKey)!;
+  const timeSinceStart = Date.now() - stepStartTime;
+  const minimumStepTime = 1500; // 1.5 seconds minimum
+  
+  if (timeSinceStart < minimumStepTime) {
+    return false;
+  }
+  
   // Auto-advance for navigation-based steps
   if (step.validation.type === 'route' && step.action === 'click') {
     return validateTutorialStep(step, currentContext);
   }
   
   return false;
+}
+
+// Clear step timings when tutorials start/end
+export function clearStepTimings() {
+  stepStartTimes.clear();
 }

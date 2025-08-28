@@ -225,10 +225,12 @@ export const useWizardStore = create<WizardState>()(
         // (they can be recalculated from patient data)
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          console.info('🔒 Encrypted store rehydrated successfully');
-        } else {
-          console.warn('🔒 Store rehydration failed - starting with fresh state');
+        if (process.env.NODE_ENV === 'development') {
+          if (state) {
+            console.info('🔒 Encrypted store rehydrated successfully');
+          } else {
+            console.warn('🔒 Store rehydration failed - starting with fresh state');
+          }
         }
       },
     }
