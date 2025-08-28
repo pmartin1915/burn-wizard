@@ -168,33 +168,49 @@ export const GuidedTour = ({ isOpen, onClose, onComplete }: GuidedTourProps) => 
     if (tooltipRef.current) {
       const rect = tooltipRef.current.getBoundingClientRect();
       setInitialWindowPos({ x: rect.left, y: rect.top });
+      
+      // Improve dragging performance by disabling animations during drag
+      tooltipRef.current.style.transition = 'none';
+      document.body.style.cursor = 'grabbing';
+      document.body.style.userSelect = 'none';
     }
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging) return;
     
-    const deltaX = e.clientX - initialMousePos.x;
-    const deltaY = e.clientY - initialMousePos.y;
-    
-    let newX = initialWindowPos.x + deltaX;
-    let newY = initialWindowPos.y + deltaY;
-    
-    // Ensure the modal stays within viewport boundaries
-    if (tooltipRef.current) {
-      const rect = tooltipRef.current.getBoundingClientRect();
-      newX = Math.max(0, Math.min(window.innerWidth - rect.width, newX));
-      newY = Math.max(0, Math.min(window.innerHeight - rect.height, newY));
-    }
-    
-    setPosition({
-      x: newX,
-      y: newY
+    // Use requestAnimationFrame for smoother movement
+    requestAnimationFrame(() => {
+      const deltaX = e.clientX - initialMousePos.x;
+      const deltaY = e.clientY - initialMousePos.y;
+      
+      let newX = initialWindowPos.x + deltaX;
+      let newY = initialWindowPos.y + deltaY;
+      
+      // Ensure the modal stays within viewport boundaries with some padding
+      const padding = 10;
+      if (tooltipRef.current) {
+        const rect = tooltipRef.current.getBoundingClientRect();
+        newX = Math.max(padding, Math.min(window.innerWidth - rect.width - padding, newX));
+        newY = Math.max(padding, Math.min(window.innerHeight - rect.height - padding, newY));
+      }
+      
+      setPosition({
+        x: newX,
+        y: newY
+      });
     });
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    
+    // Restore animations and cursor after drag
+    if (tooltipRef.current) {
+      tooltipRef.current.style.transition = '';
+    }
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
   };
 
   useEffect(() => {
@@ -261,31 +277,32 @@ export const GuidedTour = ({ isOpen, onClose, onComplete }: GuidedTourProps) => 
 
   return (
     <>
-      {/* Simple backdrop overlay */}
+      {/* Lighter backdrop overlay */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-30 z-[9996]" 
+        className="fixed inset-0 bg-black bg-opacity-15 z-[9996]" 
         onClick={skipTour}
       />
       
-      {/* Tooltip - Burn Wizard themed */}
+      {/* Tooltip - Burn Wizard themed with smooth transitions */}
       <div
         ref={tooltipRef}
-        className="fixed z-[9999] bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-orange-200 dark:border-orange-700 p-6 max-w-sm w-full"
+        className="fixed z-[9999] bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-orange-200 dark:border-orange-700 p-6 max-w-sm w-full transition-all duration-200 ease-out"
         style={{
           top: `${position.y}px`,
-          left: `${position.x}px`
+          left: `${position.x}px`,
+          transform: isDragging ? 'scale(1.02)' : 'scale(1)'
         }}
       >
-        {/* Emergency reset handle - warm orange theme */}
+        {/* Emergency reset handle - warm orange theme with better feedback */}
         <div 
-          className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-12 h-2 bg-orange-300 rounded-t cursor-ns-resize hover:bg-orange-400 transition-colors"
+          className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-12 h-2 bg-orange-300 hover:bg-orange-400 rounded-t cursor-pointer transition-all duration-200"
           onDoubleClick={resetWindowPosition}
           title="Double-click to reset window position"
         />
         
-        {/* Header - Draggable area */}
+        {/* Header - Draggable area with better cursor feedback */}
         <div 
-          className="flex items-center justify-between mb-4 cursor-move"
+          className="flex items-center justify-between mb-4 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={handleMouseDown}
         >
           <div className="flex items-center space-x-2">
