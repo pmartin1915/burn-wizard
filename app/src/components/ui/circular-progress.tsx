@@ -43,13 +43,6 @@ export function CircularProgress({
     success: 'stroke-green-500'
   };
 
-  const glowClasses = {
-    primary: 'glow-primary',
-    warning: 'glow-warning', 
-    danger: 'glow-danger',
-    success: 'drop-shadow-sm'
-  };
-
   return (
     <div className={cn("relative inline-flex items-center justify-center", className)}>
       <svg

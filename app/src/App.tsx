@@ -10,10 +10,19 @@ import Header from './components/Header';
 import Home from './routes/Home';
 import Review from './routes/Review';
 import Settings from './routes/Settings';
+import Tutorials from './routes/Tutorials';
 import DressingGuide from './components/DressingGuide';
 import AnalgesiaTips from './components/AnalgesiaTips';
 import NotePreview from './components/NotePreview';
 import ClinicalScenarios from './components/ClinicalScenarios';
+import { GuidedTour } from './components/ui/GuidedTour';
+import { KeyboardShortcutsModal } from './components/ui/KeyboardShortcutsModal';
+import { SaveStatusIndicator } from './components/ui/SaveStatusIndicator';
+import { LiveAnnouncerProvider } from './components/ui/LiveAnnouncer';
+import { SkipLinks } from './components/ui/SkipLinks';
+import { useKeyboardShortcuts, SHORTCUTS } from './hooks/useKeyboardShortcuts';
+import { useAutoSave } from './hooks/useAutoSave';
+import { exportAssessment } from './utils/dataExport';
 import { cn } from './lib/utils';
 
 const queryClient = new QueryClient({
@@ -28,7 +37,25 @@ function App() {
   const [currentTab, setCurrentTab] = useState<TabRoute>('tbsa');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const { settings } = useWizardStore();
+  const [showTour, setShowTour] = useState(false);
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+  const store = useWizardStore();
+  const { settings, markGuidedTourSeen } = store;
+
+  // Auto-save functionality
+  const { saveInfo, manualSave, hasUnsavedChanges } = useAutoSave({
+    enabled: true,
+    debounceDelay: 2000,
+    periodicInterval: 30000,
+    onSave: (success) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(success ? '✅ Auto-save successful' : '❌ Auto-save failed');
+      }
+    },
+    onError: (error) => {
+      console.error('💾 Auto-save error:', error);
+    }
+  });
 
   useEffect(() => {
     if (settings.darkMode) {
@@ -38,7 +65,7 @@ function App() {
     }
   }, [settings.darkMode]);
 
-  // Initialize security and encryption systems on app start
+  // Initialize security and handle session recovery
   useEffect(() => {
     const initSecurity = async () => {
       try {
@@ -54,6 +81,7 @@ function App() {
           const encryptionStatus = getEncryptionStatus();
           if (process.env.NODE_ENV === 'development') {
             console.log(`🔒 Session started with encryption: ${encryptionStatus.available ? 'enabled' : 'disabled'}`);
+            console.log('🔄 Session recovery: Store will be rehydrated from encrypted storage');
           }
         }
       } catch (error) {
@@ -69,12 +97,80 @@ function App() {
     };
   }, []);
 
+  const handleStartTour = () => {
+    setShowTour(true);
+  };
+
+  const handleTourComplete = () => {
+    markGuidedTourSeen();
+    setShowTour(false);
+  };
+
+  const handleTourClose = () => {
+    setShowTour(false);
+  };
+
+  const handleExportAssessment = (format: 'json' | 'csv' | 'txt' = 'json') => {
+    try {
+      exportAssessment(store, format, 'assessment-only');
+      console.log(`📄 Assessment exported as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
+
+  // Global keyboard shortcuts for navigation
+  useKeyboardShortcuts([
+    {
+      ...SHORTCUTS.NAVIGATE_TBSA,
+      action: () => setCurrentTab('tbsa'),
+    },
+    {
+      ...SHORTCUTS.NAVIGATE_SCENARIOS,
+      action: () => setCurrentTab('scenarios'),
+    },
+    {
+      ...SHORTCUTS.NAVIGATE_TUTORIALS,
+      action: () => setCurrentTab('tutorials'),
+    },
+    {
+      ...SHORTCUTS.NAVIGATE_PROCEDURE,
+      action: () => setCurrentTab('procedure'),
+    },
+    {
+      ...SHORTCUTS.NAVIGATE_DISCHARGE,
+      action: () => setCurrentTab('discharge'),
+    },
+    {
+      ...SHORTCUTS.NAVIGATE_HISTORY,
+      action: () => setCurrentTab('history'),
+    },
+    {
+      ...SHORTCUTS.NAVIGATE_SETTINGS,
+      action: () => setCurrentTab('settings'),
+    },
+    {
+      ...SHORTCUTS.SHOW_HELP,
+      action: () => setShowKeyboardHelp(true),
+    },
+    {
+      ...SHORTCUTS.SAVE,
+      action: () => {
+        manualSave();
+        console.log('💾 Manual save triggered');
+      },
+    },
+  ], {
+    enabled: true,
+    context: 'global',
+  });
+
   const renderTabContent = () => {
     switch (currentTab) {
       case 'tbsa':
         return (
           <div className="space-y-6">
-            <Home onNavigate={() => {}} />
+            <Home onNavigate={() => {}} onStartTour={handleStartTour} />
           </div>
         );
       case 'scenarios':
@@ -84,7 +180,7 @@ function App() {
           </div>
         );
       case 'tutorials':
-        return null; // Content is now handled in the main content area
+        return <Tutorials onNavigate={(tab) => setCurrentTab(tab as TabRoute)} onStartTour={handleStartTour} />;
       case 'procedure':
         return (
           <div className="space-y-6">
@@ -136,11 +232,14 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-foreground">
+      <LiveAnnouncerProvider>
+        <div className="min-h-screen bg-background text-foreground">
+        <SkipLinks />
         <SafetyBanner />
         
         {/* Sidebar Navigation */}
         <Sidebar
+          id="navigation"
           currentTab={currentTab}
           onTabChange={(tab) => setCurrentTab(tab as TabRoute)}
           isCollapsed={sidebarCollapsed}
@@ -160,21 +259,24 @@ function App() {
             sidebarCollapsed={sidebarCollapsed}
             onNavigateToSettings={() => setCurrentTab('settings')}
             onToggleMobileSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+            saveInfo={saveInfo}
+            onManualSave={manualSave}
+            onExportAssessment={handleExportAssessment}
           />
 
           {/* Main Content */}
-          <main className="content-section min-h-[calc(100vh-theme(spacing.16))] pb-24">
+          <main 
+            id="main-content"
+            className="content-section min-h-[calc(100vh-theme(spacing.16))] pb-24"
+            role="main"
+            aria-label="Burn assessment application content"
+            tabIndex={-1}
+          >
             <div className="max-w-7xl mx-auto">
               <div className="tab-content-enter prose-spacing">
                 {renderTabContent()}
               </div>
               
-              {/* Tutorials tab now shows placeholder - will be replaced with new GuidedTour trigger */}
-              {currentTab === 'tutorials' && (
-                <div className="mt-8 p-8 text-center text-muted-foreground">
-                  <p>New guided tour coming soon...</p>
-                </div>
-              )}
             </div>
           </main>
 
@@ -187,7 +289,22 @@ function App() {
           </footer>
         </div>
 
+        {/* Guided Tour - Global component that persists across tabs */}
+        <GuidedTour 
+          isOpen={showTour}
+          onClose={handleTourClose}
+          onComplete={handleTourComplete}
+          onNavigate={(tab) => setCurrentTab(tab as TabRoute)}
+        />
+
+        {/* Keyboard Shortcuts Help Modal */}
+        <KeyboardShortcutsModal 
+          isOpen={showKeyboardHelp}
+          onClose={() => setShowKeyboardHelp(false)}
+        />
+
       </div>
+      </LiveAnnouncerProvider>
     </QueryClientProvider>
   );
 }

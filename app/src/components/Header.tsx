@@ -1,5 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { 
   Settings, 
   Wifi, 
@@ -7,15 +13,22 @@ import {
   Moon, 
   Sun,
   Download,
+  Save,
+  FileDown,
   Menu
 } from 'lucide-react';
 import { useWizardStore } from '@/store/useWizardStore';
+import { SaveStatusIndicator } from '@/components/ui/SaveStatusIndicator';
 import { cn } from '@/lib/utils';
+import type { SaveInfo } from '@/hooks/useAutoSave';
 
 interface HeaderProps {
   sidebarCollapsed: boolean;
   onNavigateToSettings?: () => void;
   onToggleMobileSidebar?: () => void;
+  saveInfo?: SaveInfo;
+  onManualSave?: () => Promise<boolean>;
+  onExportAssessment?: (format: 'json' | 'csv' | 'txt') => void;
   className?: string;
 }
 
@@ -24,7 +37,7 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export default function Header({ sidebarCollapsed: _sidebarCollapsed, onNavigateToSettings, onToggleMobileSidebar, className }: HeaderProps) {
+export default function Header({ sidebarCollapsed: _sidebarCollapsed, onNavigateToSettings, onToggleMobileSidebar, saveInfo, onManualSave, onExportAssessment, className }: HeaderProps) {
   const { settings, updateSettings } = useWizardStore();
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
   const [installPrompt, setInstallPrompt] = React.useState<BeforeInstallPromptEvent | null>(null);
@@ -122,6 +135,15 @@ export default function Header({ sidebarCollapsed: _sidebarCollapsed, onNavigate
 
         {/* Right side controls */}
         <div className="flex items-center gap-2">
+          {/* Save Status Indicator */}
+          {saveInfo && (
+            <SaveStatusIndicator 
+              saveInfo={saveInfo} 
+              compact={true}
+              showLastSaved={false}
+            />
+          )}
+
           {/* Online/Offline Indicator */}
           <div className="flex items-center gap-2">
             {isOnline ? (
@@ -136,6 +158,46 @@ export default function Header({ sidebarCollapsed: _sidebarCollapsed, onNavigate
               </div>
             )}
           </div>
+
+          {/* Manual Save Button */}
+          {onManualSave && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onManualSave()}
+              title="Save assessment (Ctrl+S)"
+              className="focus-ring touch-target"
+            >
+              <Save className="h-4 w-4" />
+            </Button>
+          )}
+
+          {/* Export Dropdown */}
+          {onExportAssessment && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title="Export assessment"
+                  className="focus-ring touch-target"
+                >
+                  <FileDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onExportAssessment('json')}>
+                  Export as JSON
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onExportAssessment('csv')}>
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onExportAssessment('txt')}>
+                  Export as Text
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Install App Button */}
           {installPrompt && (

@@ -4,62 +4,102 @@
 
 @layer base {
   :root {
-    /* Enhanced Medical Teal Theme - Improved Contrast */
-    --background: 46 100% 99%; /* Soft cream background */
-    --foreground: 184 100% 11%; /* Very dark teal text for better contrast */
-    --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 184 100% 11%;
+    /* Professional Medical Design System - Refined Teal Theme */
+    --background: 180 20% 98%; /* Clinical white with subtle teal hint */
+    --foreground: 192 95% 9%; /* Deep medical teal for text */
+    --card: 0 0% 100%; /* Pure white cards for medical clarity */
+    --card-foreground: 192 95% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 184 100% 11%;
-    --primary: 173 80% 35%; /* Darker medical teal for better white text contrast */
-    --primary-foreground: 0 0% 100%; /* White text on teal */
-    --secondary: 174 56% 96%; /* Very light teal */
-    --secondary-foreground: 184 100% 11%;
-    --muted: 174 56% 96%;
-    --muted-foreground: 184 30% 45%; /* Improved contrast for muted text */
-    --accent: 174 56% 96%; /* Light teal accent */
-    --accent-foreground: 184 100% 11%;
-    --destructive: 0 84% 60%; /* Warm coral for alerts */
-    --destructive-foreground: 0 0% 100%;
-    --border: 174 44% 85%; /* Slightly darker borders for definition */
-    --input: 174 44% 92%;
-    --ring: 173 80% 35%; /* Teal focus ring matches primary */
-    --radius: 0.5rem;
+    --popover-foreground: 192 95% 9%;
     
-    /* Burn severity colors - enhanced */
-    --burn-superficial: 0 93% 94%; /* Soft pink */
-    --burn-superficial-partial: 25 95% 84%; /* Warm peach */
-    --burn-deep-partial: 45 93% 90%; /* Golden yellow */
-    --burn-full-thickness: 210 20% 90%; /* Light gray */
+    /* Medical Teal Primary Palette */
+    --primary: 174 76% 38%; /* Professional medical teal */
+    --primary-light: 174 65% 55%; /* Lighter teal for hover states */
+    --primary-dark: 174 85% 28%; /* Darker teal for emphasis */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Supporting Colors */
+    --secondary: 180 25% 95%; /* Very light teal background */
+    --secondary-foreground: 192 95% 9%;
+    --muted: 180 15% 94%; /* Subtle neutral background */
+    --muted-foreground: 192 25% 45%;
+    --accent: 174 45% 85%; /* Soft teal accent */
+    --accent-foreground: 192 95% 9%;
+    
+    /* Status Colors - Medical Context */
+    --success: 142 69% 45%; /* Medical green for positive states */
+    --success-foreground: 0 0% 100%;
+    --warning: 43 89% 58%; /* Amber for caution */
+    --warning-foreground: 43 15% 15%;
+    --destructive: 0 72% 51%; /* Medical red for critical alerts */
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Interface Elements */
+    --border: 180 25% 87%; /* Refined border color */
+    --input: 180 20% 96%; /* Input background */
+    --ring: 174 76% 38%; /* Focus ring matches primary */
+    --radius: 0.75rem; /* Slightly more rounded for modern feel */
+    
+    /* Medical Severity Palette - Enhanced */
+    --burn-none: 0 0% 98%; /* No burn - near white */
+    --burn-superficial: 0 45% 88%; /* Light pink for superficial */
+    --burn-superficial-partial: 25 65% 80%; /* Warm peach */
+    --burn-deep-partial: 35 75% 70%; /* Golden amber */
+    --burn-full-thickness: 195 15% 75%; /* Cool gray */
+    
+    /* Gradient Stops for Medical UI */
+    --gradient-primary: linear-gradient(135deg, hsl(174 76% 38%) 0%, hsl(174 65% 55%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(180 20% 98%) 100%);
+    --gradient-accent: linear-gradient(120deg, hsl(174 45% 85%) 0%, hsl(180 25% 95%) 100%);
   }
 
   .dark {
-    /* Dark mode - enhanced teal theme with better contrast */
-    --background: 184 84% 6%; /* Dark teal background */
-    --foreground: 174 56% 96%; /* Light teal text */
-    --card: 184 61% 8%; /* Dark teal cards */
-    --card-foreground: 174 56% 96%;
-    --popover: 184 61% 8%;
-    --popover-foreground: 174 56% 96%;
-    --primary: 174 84% 65%; /* Brighter teal for better contrast on dark background */
-    --primary-foreground: 184 84% 6%; /* Dark text on bright teal */
-    --secondary: 184 32% 18%; /* Dark teal secondary */
-    --secondary-foreground: 174 56% 96%;
-    --muted: 184 32% 18%;
-    --muted-foreground: 174 25% 70%; /* Better muted text contrast */
-    --accent: 184 32% 18%; /* Dark teal accent */
-    --accent-foreground: 174 56% 96%;
-    --destructive: 0 73% 50%; /* Better coral contrast for dark mode */
-    --destructive-foreground: 174 56% 96%;
-    --border: 184 32% 22%; /* Slightly lighter borders for visibility */
-    --input: 184 32% 18%;
-    --ring: 174 84% 70%; /* Bright teal ring */
+    /* Dark Mode - Professional Medical Theme */
+    --background: 192 45% 8%; /* Deep medical teal background */
+    --foreground: 180 15% 94%; /* Light text for contrast */
+    --card: 192 35% 12%; /* Dark card background */
+    --card-foreground: 180 15% 94%;
+    --popover: 192 35% 12%;
+    --popover-foreground: 180 15% 94%;
     
-    /* Dark mode burn colors */
-    --burn-superficial: 0 45% 25%; /* Dark pink */
-    --burn-superficial-partial: 25 45% 30%; /* Dark peach */
-    --burn-deep-partial: 45 45% 35%; /* Dark yellow */
-    --burn-full-thickness: 210 20% 25%; /* Dark gray */
+    /* Dark Mode Primary Palette */
+    --primary: 174 65% 55%; /* Bright teal for dark backgrounds */
+    --primary-light: 174 55% 70%; /* Even lighter for hover */
+    --primary-dark: 174 75% 45%; /* Darker variant */
+    --primary-foreground: 192 45% 8%; /* Dark text on teal */
+    
+    /* Dark Mode Supporting Colors */
+    --secondary: 192 25% 20%; /* Dark secondary background */
+    --secondary-foreground: 180 15% 94%;
+    --muted: 192 20% 18%; /* Dark muted background */
+    --muted-foreground: 180 10% 65%; /* Muted text */
+    --accent: 174 35% 25%; /* Dark accent */
+    --accent-foreground: 180 15% 94%;
+    
+    /* Dark Mode Status Colors */
+    --success: 142 60% 50%; /* Brighter green for dark mode */
+    --success-foreground: 142 30% 10%;
+    --warning: 43 85% 65%; /* Brighter amber */
+    --warning-foreground: 43 20% 15%;
+    --destructive: 0 65% 55%; /* Brighter red */
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Dark Mode Interface */
+    --border: 192 25% 25%; /* Visible borders in dark mode */
+    --input: 192 25% 20%; /* Input backgrounds */
+    --ring: 174 65% 55%; /* Focus ring */
+    
+    /* Dark Mode Burn Colors */
+    --burn-none: 192 45% 8%; /* Same as background */
+    --burn-superficial: 0 35% 30%; /* Dark pink */
+    --burn-superficial-partial: 25 45% 35%; /* Dark peach */
+    --burn-deep-partial: 35 55% 40%; /* Dark amber */
+    --burn-full-thickness: 195 15% 35%; /* Dark gray */
+    
+    /* Dark Mode Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(174 65% 55%) 0%, hsl(174 55% 70%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(192 35% 12%) 0%, hsl(192 30% 15%) 100%);
+    --gradient-accent: linear-gradient(120deg, hsl(174 35% 25%) 0%, hsl(192 25% 20%) 100%);
   }
 }
 
@@ -74,50 +114,92 @@
 }
 
 @layer components {
-  /* Enhanced medical theme styling */
+  /* Professional Medical Card System */
   .burn-wizard-card {
-    @apply bg-card/95 backdrop-blur-sm border border-border/50;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.06);
-    @apply transition-all duration-300 hover:border-border hover:-translate-y-0.5;
+    background: var(--gradient-card);
+    @apply border border-border/40 backdrop-blur-sm;
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.08), 0 1px 3px hsl(var(--primary) / 0.06);
+    @apply transition-all duration-300 hover:border-primary/30;
+    border-radius: calc(var(--radius) + 0.125rem);
   }
   
   .burn-wizard-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 24px hsl(var(--primary) / 0.12), 0 4px 8px hsl(var(--primary) / 0.08);
+    transform: translateY(-2px) scale(1.01);
   }
   
   .burn-wizard-card-elevated {
-    @apply bg-card border border-border/50;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 4px 8px rgba(0,0,0,0.08);
-    @apply transition-all duration-300;
+    background: var(--gradient-card);
+    @apply border border-primary/20;
+    box-shadow: 0 8px 32px hsl(var(--primary) / 0.15), 0 4px 12px hsl(var(--primary) / 0.1);
+    @apply transition-all duration-400;
+    border-radius: calc(var(--radius) + 0.25rem);
   }
   
   .burn-wizard-card-primary {
-    @apply bg-primary/5 border-primary/20;
-    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.15), 0 2px 4px rgba(0,0,0,0.06);
+    background: var(--gradient-accent);
+    @apply border-primary/30;
+    box-shadow: 0 4px 20px hsl(var(--primary) / 0.2), 0 2px 8px hsl(var(--primary) / 0.1);
+    position: relative;
+    overflow: hidden;
   }
   
+  .burn-wizard-card-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+  }
+  
+  /* Professional Medical Button System */
   .burn-wizard-primary-button {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground font-medium;
-    @apply transition-all duration-200 hover:-translate-y-1 active:translate-y-0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: var(--gradient-primary);
+    @apply text-primary-foreground font-semibold relative overflow-hidden;
+    @apply transition-all duration-300 hover:scale-105 active:scale-95;
+    box-shadow: 0 4px 14px hsl(var(--primary) / 0.3), 0 2px 6px hsl(var(--primary) / 0.2);
+    border-radius: calc(var(--radius) + 0.125rem);
+    position: relative;
+  }
+  
+  .burn-wizard-primary-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .burn-wizard-primary-button:hover::before {
+    left: 100%;
   }
   
   .burn-wizard-primary-button:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 28px hsl(var(--primary) / 0.4), 0 4px 12px hsl(var(--primary) / 0.3);
+    filter: brightness(1.1);
   }
   
   .burn-wizard-primary-button:active {
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.3);
+    filter: brightness(0.95);
   }
   
   .burn-wizard-secondary-button {
-    @apply bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium;
-    @apply transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    background: var(--gradient-accent);
+    @apply text-secondary-foreground font-medium border border-border/40;
+    @apply transition-all duration-300 hover:scale-[1.02] hover:border-primary/40;
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.08);
+    border-radius: var(--radius);
   }
   
   .burn-wizard-secondary-button:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 16px hsl(var(--primary) / 0.15);
+    background: linear-gradient(120deg, hsl(174 55% 90%) 0%, hsl(180 30% 96%) 100%);
   }
   
   .burn-wizard-teal-accent {
@@ -142,10 +224,37 @@
     @apply bg-primary/5 px-3 py-1 rounded-md border border-primary/20;
   }
   
-  /* Burn region button enhancements */
+  /* Enhanced Burn Region Buttons with Medical Context */
   .burn-region-button {
-    @apply transition-all duration-200 hover:scale-105 active:scale-95;
-    @apply shadow-sm hover:shadow-md border-2;
+    @apply relative overflow-hidden font-medium;
+    @apply transition-all duration-300 hover:scale-105 active:scale-95;
+    box-shadow: 0 2px 8px hsl(var(--primary) / 0.1);
+    border: 2px solid hsl(var(--border));
+    border-radius: calc(var(--radius) - 0.125rem);
+    position: relative;
+  }
+  
+  .burn-region-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: hsl(var(--primary) / 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+  }
+  
+  .burn-region-button:hover::after {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .burn-region-button:hover {
+    box-shadow: 0 6px 20px hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary) / 0.4);
   }
   
   /* Medical form styling */
@@ -566,5 +675,243 @@
   .prose-spacing > h2 + *,
   .prose-spacing > h3 + * {
     margin-top: 0.5rem;
+  }
+  
+  /* Medical UI Enhancements */
+  .medical-glow {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .medical-pulse {
+    animation: medicalPulse 2s ease-in-out infinite;
+  }
+  
+  .medical-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .medical-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  /* Enhanced Hover States */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 10px 30px hsl(var(--primary) / 0.15);
+  }
+  
+  /* Status Indicators */
+  .status-indicator {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
+    animation: statusPulse 3s ease-in-out infinite;
+  }
+}
+
+/* Enhanced Medical Animation Keyframes */
+@keyframes medicalPulse {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes cardFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.002);
+  }
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes medicalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tbsaGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.6), 0 0 30px hsl(var(--primary) / 0.3);
+  }
+}
+
+/* Enhanced Responsive Design System */
+@media (max-width: 768px) {
+  /* Mobile-first optimizations */
+  .burn-wizard-card {
+    border-radius: calc(var(--radius) - 0.125rem);
+    box-shadow: 0 1px 6px hsl(var(--primary) / 0.1);
+  }
+  
+  .burn-wizard-card:hover {
+    transform: translateY(-1px) scale(1.005);
+    box-shadow: 0 4px 16px hsl(var(--primary) / 0.15);
+  }
+  
+  .burn-wizard-primary-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+  
+  .burn-region-button {
+    min-height: 60px;
+    font-size: 0.875rem;
+    padding: 0.75rem;
+  }
+  
+  /* Touch-friendly spacing */
+  .content-section {
+    padding: 1rem;
+    space-y: 1rem;
+  }
+  
+  /* Simplified animations for mobile */
+  .burn-wizard-card:hover {
+    animation: none;
+    transform: none;
+  }
+  
+  .burn-region-button:hover::after {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small screens */
+  .burn-wizard-card {
+    margin: 0.5rem 0;
+    border-radius: var(--radius);
+  }
+  
+  .burn-wizard-primary-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Stack elements vertically */
+  .responsive-stack {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Reduce motion for performance */
+  .burn-wizard-primary-button::before {
+    display: none;
+  }
+  
+  .medical-shimmer::before {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet optimizations */
+  .burn-wizard-card {
+    border-radius: calc(var(--radius) + 0.125rem);
+  }
+  
+  .burn-region-button {
+    min-height: 64px;
+    transition-duration: 250ms;
+  }
+  
+  .content-section {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* Desktop enhancements */
+  .burn-wizard-card {
+    border-radius: calc(var(--radius) + 0.25rem);
+  }
+  
+  .medical-shimmer:hover::before {
+    animation-duration: 1.5s;
+  }
+  
+  .burn-wizard-primary-button:hover {
+    filter: brightness(1.05) contrast(1.02);
+  }
+}
+
+/* High-contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 180 25% 60%;
+    --primary: 174 90% 30%;
+  }
+  
+  .burn-wizard-card {
+    border-width: 2px;
+  }
+  
+  .burn-wizard-primary-button {
+    border: 2px solid hsl(var(--primary));
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .medical-pulse,
+  .medical-shimmer::before,
+  .wizard-logo-flame {
+    animation: none !important;
+  }
+  
+  .burn-wizard-card:hover {
+    transform: none !important;
   }
 }

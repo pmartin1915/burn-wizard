@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CircularProgress } from '@/components/ui/circular-progress';
 import { cn } from '@/lib/utils';
 import { useWizardStore } from '@/store/useWizardStore';
 
@@ -15,7 +14,7 @@ interface TimelineStage {
 }
 
 export function FluidCalculationTimeline() {
-  const { fluidResult, patientData } = useWizardStore();
+  const { fluidResult } = useWizardStore();
 
   const stages: TimelineStage[] = React.useMemo(() => {
     if (!fluidResult || !fluidResult.parkland.totalMl) {
@@ -78,7 +77,7 @@ export function FluidCalculationTimeline() {
         description: 'Give remaining fluid at steady rate'
       }
     ];
-  }, [fluidResult, patientData]);
+  }, [fluidResult]);
 
   return (
     <Card className="burn-wizard-card animate-fade-in-up">

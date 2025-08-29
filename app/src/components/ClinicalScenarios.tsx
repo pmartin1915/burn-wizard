@@ -82,10 +82,10 @@ export default function ClinicalScenarios({ className }: ClinicalScenariosProps)
   if (!selectedScenario && !isActive) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <Card>
+        <Card className="medical-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-primary" />
+            <CardTitle className="flex items-center gap-2 text-primary">
+              <BookOpen className="h-5 w-5" />
               Clinical Training Scenarios
             </CardTitle>
             <p className="text-sm text-muted-foreground">
@@ -95,7 +95,7 @@ export default function ClinicalScenarios({ className }: ClinicalScenariosProps)
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {scenarios.map((scenario) => (
-                <Card key={scenario.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                <Card key={scenario.id} className="medical-card hover:shadow-md transition-shadow cursor-pointer">
                   <CardContent className="p-4">
                     <div className="space-y-3">
                       {/* Header */}
@@ -159,7 +159,7 @@ export default function ClinicalScenarios({ className }: ClinicalScenariosProps)
     return (
       <div className={`space-y-6 ${className}`}>
         {/* Scenario Header */}
-        <Card className="border-primary/20 bg-primary/5">
+        <Card className="medical-card border-primary/20 bg-primary/5">
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="space-y-2">
@@ -203,9 +203,9 @@ export default function ClinicalScenarios({ className }: ClinicalScenariosProps)
         </Card>
 
         {/* Clinical Presentation */}
-        <Card>
+        <Card className="medical-card">
           <CardHeader>
-            <CardTitle className="text-base">Clinical Presentation</CardTitle>
+            <CardTitle className="text-base text-primary">Clinical Presentation</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -224,9 +224,9 @@ export default function ClinicalScenarios({ className }: ClinicalScenariosProps)
         </Card>
 
         {/* Learning Objectives */}
-        <Card>
+        <Card className="medical-card">
           <CardHeader>
-            <CardTitle className="text-base">Learning Objectives</CardTitle>
+            <CardTitle className="text-base text-primary">Learning Objectives</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm">

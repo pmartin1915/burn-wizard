@@ -34,8 +34,8 @@ import { useWizardStore } from '@/store/useWizardStore';
 import { calculateTBSA } from '@/domain/tbsa';
 import { getBurnDepthInfo } from '@/constants/burnDepth';
 import InteractiveSVGBodyMap from './InteractiveSVGBodyMap';
-import BurnDepthChart from './BurnDepthChart';
 import { CircularProgress } from '@/components/ui/circular-progress';
+import { useTbsaAnnouncer } from '@/components/ui/LiveAnnouncer';
 import { cn } from '@/lib/utils';
 import type { RegionKey, BurnFraction, BurnDepth } from '@/domain/types';
 
@@ -67,6 +67,7 @@ export default function BodyMap() {
   const { regionSelections, patientData, setRegionSelection } = useWizardStore();
   const [selectedDepth, setSelectedDepth] = React.useState<BurnDepth>('superficial-partial');
   const [viewMode, setViewMode] = React.useState<'svg' | 'grid'>('svg');
+  const { announceTbsaChange } = useTbsaAnnouncer();
   
   const currentTbsa = React.useMemo(() => {
     try {
@@ -100,6 +101,15 @@ export default function BodyMap() {
     const nextFraction = FRACTION_OPTIONS[nextIndex];
     
     setRegionSelection(regionKey, nextFraction, nextFraction > 0 ? selectedDepth : undefined);
+    
+    // Announce the change to screen readers
+    const regionLabel = BODY_REGIONS.find(r => r.key === regionKey)?.label || regionKey;
+    const newTbsa = calculateTBSA(patientData.ageMonths, [
+      ...regionSelections.filter(s => s.region !== regionKey),
+      ...(nextFraction > 0 ? [{ region: regionKey, fraction: nextFraction, depth: selectedDepth }] : [])
+    ]).tbsaPct;
+    
+    announceTbsaChange(newTbsa, regionLabel);
   };
 
   // Show SVG view by default, with option to switch to grid
@@ -108,15 +118,29 @@ export default function BodyMap() {
   }
 
   return (
-    <Card className="w-full burn-wizard-card">
+    <Card 
+      className="w-full burn-wizard-card medical-card"
+      role="region"
+      aria-labelledby="body-map-title"
+      aria-describedby="body-map-description"
+    >
       <CardHeader>
-        <CardTitle className="burn-wizard-heading-md mb-4">Body Region Assessment</CardTitle>
+        <CardTitle id="body-map-title" className="burn-wizard-heading-md text-primary mb-4">Body Region Assessment</CardTitle>
+        <p id="body-map-description" className="sr-only">
+          Interactive body map for selecting burn involvement by region and depth. Click regions to cycle through burn percentages.
+        </p>
         
         {/* TBSA Display Card with Circular Progress */}
-        <div className="burn-wizard-card-primary rounded-card p-6 mb-4">
+        <div 
+          className="burn-wizard-card-primary rounded-card p-6 mb-4"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-labelledby="tbsa-result-title"
+        >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h3 className="burn-wizard-heading-sm text-primary mb-2">Total Body Surface Area</h3>
+              <h3 id="tbsa-result-title" className="burn-wizard-heading-sm text-primary mb-2">Total Body Surface Area</h3>
               <p className="burn-wizard-body-sm text-primary/70 mb-4">Current calculation based on selections</p>
               
               <div className={cn(
@@ -125,18 +149,23 @@ export default function BodyMap() {
                 currentTbsa < 10 ? "status-safe" :
                 currentTbsa < 20 ? "status-warning" :
                 "status-critical"
-              )}>
+              )}
+              role="status"
+              aria-labelledby="burn-severity-label"
+              >
                 <div className={cn(
                   "w-2 h-2 rounded-full",
                   currentTbsa === 0 ? "bg-gray-400" :
                   currentTbsa < 10 ? "bg-green-500" :
                   currentTbsa < 20 ? "bg-amber-500" :
                   "bg-red-500"
-                )} />
+                )} aria-hidden="true" />
+                <span id="burn-severity-label">
                 {currentTbsa === 0 ? "No burns selected" :
                  currentTbsa < 10 ? "Minor burn" :
                  currentTbsa < 20 ? "Moderate burn" :
                  "Major burn"}
+                </span>
               </div>
             </div>
             
@@ -153,6 +182,8 @@ export default function BodyMap() {
                 }
                 label="TBSA"
                 className="float-gentle"
+                aria-label={`Total Body Surface Area: ${currentTbsa} percent`}
+                role="img"
               />
             </div>
           </div>
@@ -173,50 +204,95 @@ export default function BodyMap() {
       <CardContent>
         <div className="space-y-4">
           {/* Burn Depth Selector */}
-          <div className="p-3 bg-muted/50 rounded-md" data-field="burn-depth">
+          <div 
+            className="p-3 bg-muted/50 rounded-md" 
+            data-field="burn-depth"
+            role="region"
+            aria-labelledby="burn-depth-label"
+          >
             <div className="flex flex-col space-y-2">
-              <label className="text-sm font-medium">Select Burn Depth for New Selections:</label>
+              <label 
+                id="burn-depth-label"
+                htmlFor="burn-depth-selector"
+                className="text-sm font-medium"
+              >
+                Select Burn Depth for New Selections:
+              </label>
               <select 
+                id="burn-depth-selector"
                 value={selectedDepth} 
                 onChange={(e) => setSelectedDepth(e.target.value as BurnDepth)}
-                className="w-full p-2 border border-border rounded-md bg-background text-sm"
+                className="w-full p-2 border border-border rounded-md bg-background text-sm focus:ring-2 focus:ring-primary focus:border-primary"
                 data-field="burn-depth-selector"
+                aria-describedby="burn-depth-help"
               >
                 <option value="superficial">Superficial (1st Degree) - Red, dry, painful</option>
                 <option value="superficial-partial">Superficial Partial (2nd Degree) - Blisters, very painful</option>
                 <option value="deep-partial">Deep Partial (2nd Degree) - Less sensation</option>
                 <option value="full-thickness">Full Thickness (3rd Degree) - No sensation</option>
               </select>
+              <p id="burn-depth-help" className="text-xs text-muted-foreground sr-only">
+                This depth will be applied to all new burn region selections. Existing selections retain their depth.
+              </p>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex flex-wrap gap-3 text-xs p-3 bg-muted/30 rounded-md border">
+          <div 
+            className="flex flex-wrap gap-3 text-xs p-3 bg-muted/30 rounded-md border"
+            role="region"
+            aria-labelledby="burn-percentage-legend"
+          >
+            <h4 id="burn-percentage-legend" className="sr-only">Burn percentage color legend</h4>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-muted border border-border rounded shadow-sm"></div>
-              <span className="font-medium">0%</span>
+              <div 
+                className="w-4 h-4 bg-muted border border-border rounded shadow-sm"
+                aria-hidden="true"
+              ></div>
+              <span className="font-medium">0% - No burn</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-amber-100 border border-amber-300 rounded shadow-sm dark:bg-amber-900/30 dark:border-amber-700"></div>
-              <span className="font-medium">25%</span>
+              <div 
+                className="w-4 h-4 bg-amber-100 border border-amber-300 rounded shadow-sm dark:bg-amber-900/30 dark:border-amber-700"
+                aria-hidden="true"
+              ></div>
+              <span className="font-medium">25% - Quarter involvement</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-orange-200 border border-orange-400 rounded shadow-sm dark:bg-orange-900/40 dark:border-orange-600"></div>
-              <span className="font-medium">50%</span>
+              <div 
+                className="w-4 h-4 bg-orange-200 border border-orange-400 rounded shadow-sm dark:bg-orange-900/40 dark:border-orange-600"
+                aria-hidden="true"
+              ></div>
+              <span className="font-medium">50% - Half involvement</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-300 border border-red-500 rounded shadow-sm dark:bg-red-900/50 dark:border-red-500"></div>
-              <span className="font-medium">75%</span>
+              <div 
+                className="w-4 h-4 bg-red-300 border border-red-500 rounded shadow-sm dark:bg-red-900/50 dark:border-red-500"
+                aria-hidden="true"
+              ></div>
+              <span className="font-medium">75% - Three quarters involvement</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-500 border border-red-600 rounded shadow-sm dark:bg-red-700 dark:border-red-800"></div>
-              <span className="font-medium text-primary">100%</span>
+              <div 
+                className="w-4 h-4 bg-red-500 border border-red-600 rounded shadow-sm dark:bg-red-700 dark:border-red-800"
+                aria-hidden="true"
+              ></div>
+              <span className="font-medium text-primary">100% - Complete involvement</span>
             </div>
           </div>
 
           {/* Body Regions Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {BODY_REGIONS.map((region) => {
+          <div 
+            className="grid grid-cols-2 md:grid-cols-3 gap-2"
+            role="application"
+            aria-labelledby="body-regions-title"
+            aria-describedby="body-regions-instructions"
+          >
+            <h4 id="body-regions-title" className="sr-only">Body region burn assessment buttons</h4>
+            <p id="body-regions-instructions" className="sr-only">
+              Use arrow keys to navigate between regions. Press Enter or Space to cycle through burn percentages for each region.
+            </p>
+            {BODY_REGIONS.map((region, index) => {
               const fraction = getRegionFraction(region.key);
               const colorClass = getButtonColor(fraction);
               
@@ -225,15 +301,38 @@ export default function BodyMap() {
                   key={region.key}
                   type="button"
                   onClick={() => handleRegionClick(region.key)}
+                  onKeyDown={(e) => {
+                    // Arrow key navigation
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      const nextIndex = (index + 1) % BODY_REGIONS.length;
+                      const nextButton = document.querySelector(`[data-region="${BODY_REGIONS[nextIndex].key}"]`) as HTMLButtonElement;
+                      nextButton?.focus();
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      const prevIndex = index === 0 ? BODY_REGIONS.length - 1 : index - 1;
+                      const prevButton = document.querySelector(`[data-region="${BODY_REGIONS[prevIndex].key}"]`) as HTMLButtonElement;
+                      prevButton?.focus();
+                    }
+                  }}
                   data-region={region.key}
-                  className={`burn-region-button p-3 rounded-md text-sm font-medium ${colorClass}`}
+                  className={`burn-region-button p-3 rounded-md text-sm font-medium transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2 ${colorClass}`}
                   title={`${region.label}: ${Math.round(fraction * 100)}%`}
-                  aria-label={`${region.label}: ${Math.round(fraction * 100)}% involvement`}
+                  aria-label={`${region.label}: ${Math.round(fraction * 100)}% burn involvement. Click to cycle to next percentage.`}
+                  aria-describedby={`region-${region.key}-status`}
                 >
                   <div className="text-center">
                     <div className="font-medium">{region.label}</div>
                     <div className="text-xs mt-1">{Math.round(fraction * 100)}%</div>
                   </div>
+                  <span id={`region-${region.key}-status`} className="sr-only">
+                    Current involvement: {Math.round(fraction * 100)} percent. 
+                    {fraction === 0 && "No burn involvement"}
+                    {fraction === 0.25 && "Quarter involvement"}
+                    {fraction === 0.5 && "Half involvement"}
+                    {fraction === 0.75 && "Three quarters involvement"}
+                    {fraction === 1 && "Complete involvement"}
+                  </span>
                 </button>
               );
             })}

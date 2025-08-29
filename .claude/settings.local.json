@@ -102,7 +102,12 @@
       "Read(/C:\\projects\\clinical-wizard\\src\\components\\ui/**)",
       "Read(/C:\\projects\\clinical-wizard/**)",
       "Read(/C:\\projects\\clinical-wizard/**)",
-      "Read(/C:\\projects\\clinical-wizard\\src\\components\\ui/**)"
+      "Read(/C:\\projects\\clinical-wizard\\src\\components\\ui/**)",
+      "Bash(tasklist:*)",
+      "Bash(/bashes)",
+      "Bash(wmic process where \"name='node.exe'\" get commandline,processid:*)",
+      "Bash(wmic process where:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": [],

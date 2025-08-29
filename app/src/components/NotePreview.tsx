@@ -202,9 +202,9 @@ export default function NotePreview({ className }: NotePreviewProps) {
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Note Type Selection */}
-      <Card>
+      <Card className="medical-card">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between text-primary">
             <span className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
               Clinical Note Generator
@@ -245,9 +245,9 @@ export default function NotePreview({ className }: NotePreviewProps) {
       </Card>
 
       {/* Note Actions */}
-      <Card>
+      <Card className="medical-card">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between text-primary">
             <span>
               {NOTE_TYPES.find(n => n.type === selectedNoteType)?.label}
             </span>
@@ -315,9 +315,9 @@ export default function NotePreview({ className }: NotePreviewProps) {
 
       {/* Note Preview */}
       {!isPreviewCollapsed && (
-        <Card>
+        <Card className="medical-card">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-primary">
               <Eye className="h-5 w-5" />
               Note Preview
             </CardTitle>

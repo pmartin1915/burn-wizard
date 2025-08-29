@@ -188,50 +188,83 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
   }, [patientData.ageMonths, regionSelections]);
 
   return (
-    <Card className="w-full burn-wizard-card animate-fade-in-up" data-element="patient-info" data-tour="patient-info">
+    <Card 
+      className="w-full burn-wizard-card medical-card animate-fade-in-up" 
+      data-element="patient-info" 
+      data-tour="patient-info"
+      role="region"
+      aria-labelledby="patient-info-title"
+      aria-describedby="patient-info-description"
+    >
       <CardHeader>
-        <CardTitle className="burn-wizard-heading-md">Patient Information</CardTitle>
+        <CardTitle id="patient-info-title" className="burn-wizard-heading-md text-primary">Patient Information</CardTitle>
+        <p id="patient-info-description" className="sr-only">
+          Enter patient demographics and injury details for burn assessment calculation
+        </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form 
+          onSubmit={handleSubmit} 
+          className="space-y-6"
+          aria-labelledby="patient-info-title"
+          role="form"
+        >
           {/* Validation Errors Display */}
           {validationErrors.length > 0 && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <div 
+              className="p-3 bg-red-50 border border-red-200 rounded-md"
+              role="alert"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               <h4 className="text-sm font-medium text-red-800 mb-2">Please correct the following:</h4>
-              <ul className="text-sm text-red-700 space-y-1">
+              <ul className="text-sm text-red-700 space-y-1" role="list">
                 {validationErrors.map((error, index) => (
-                  <li key={index}>• {error.userMessage}</li>
+                  <li key={index} role="listitem">• {error.userMessage}</li>
                 ))}
               </ul>
             </div>
           )}
 
           {/* Age Section with Unit Toggle */}
-          <div className="space-y-2">
+          <fieldset className="space-y-2" role="group" aria-labelledby="age-legend">
+            <legend id="age-legend" className="sr-only">Patient age input with unit selection</legend>
             <div className="flex items-center gap-4">
               <Label htmlFor="ageInput" className="flex-shrink-0">Age</Label>
-              <div className="flex items-center gap-2">
+              <div 
+                className="flex items-center gap-2" 
+                role="radiogroup" 
+                aria-labelledby="age-unit-label"
+                aria-describedby="age-unit-help"
+              >
+                <span id="age-unit-label" className="sr-only">Age unit selection</span>
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={ageUnit === 'months'}
+                  aria-labelledby="age-unit-months"
                   onClick={() => setAgeUnit('months')}
-                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                  className={`px-3 py-1 text-sm rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
                     ageUnit === 'months' 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                   }`}
                 >
-                  Months
+                  <span id="age-unit-months">Months</span>
                 </button>
                 <button
                   type="button"
+                  role="radio"
+                  aria-checked={ageUnit === 'years'}
+                  aria-labelledby="age-unit-years"
                   onClick={() => setAgeUnit('years')}
-                  className={`px-3 py-1 text-sm rounded transition-colors ${
+                  className={`px-3 py-1 text-sm rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
                     ageUnit === 'years' 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                   }`}
                 >
-                  Years
+                  <span id="age-unit-years">Years</span>
                 </button>
               </div>
             </div>
@@ -246,14 +279,19 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
               onChange={(e) => handleInputChange('ageMonths', parseFloat(e.target.value) || 0)}
               className={`w-full ${fieldErrors.ageMonths ? 'border-red-500' : ''}`}
               placeholder={ageUnit === 'years' ? 'e.g., 2.5' : 'e.g., 30'}
+              aria-describedby="age-help age-error"
+              aria-invalid={!!fieldErrors.ageMonths}
+              aria-required="true"
             />
-            <p className="text-xs text-muted-foreground">
+            <p id="age-help" className="text-xs text-muted-foreground">
               {ageUnit === 'years' ? 'Decimal values accepted (e.g., 2.5 years)' : 'Enter age in months'}
             </p>
             {fieldErrors.ageMonths && (
-              <p className="text-sm text-red-600">{fieldErrors.ageMonths}</p>
+              <p id="age-error" className="text-sm text-red-600" role="alert" aria-live="polite">
+                {fieldErrors.ageMonths}
+              </p>
             )}
-          </div>
+          </fieldset>
 
           {/* Weight Section */}
           <div className="space-y-2">
@@ -267,9 +305,17 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
               value={patientData.weightKg}
               onChange={(e) => handleInputChange('weightKg', parseFloat(e.target.value) || 0)}
               className={fieldErrors.weightKg ? 'border-red-500' : ''}
+              aria-describedby="weight-help weight-error"
+              aria-invalid={!!fieldErrors.weightKg}
+              aria-required="true"
             />
+            <p id="weight-help" className="text-xs text-muted-foreground sr-only">
+              Patient weight in kilograms, used for fluid resuscitation calculations
+            </p>
             {fieldErrors.weightKg && (
-              <p className="text-sm text-red-600">{fieldErrors.weightKg}</p>
+              <p id="weight-error" className="text-sm text-red-600" role="alert" aria-live="polite">
+                {fieldErrors.weightKg}
+              </p>
             )}
           </div>
 
@@ -285,9 +331,17 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
               value={patientData.hoursSinceInjury}
               onChange={(e) => handleInputChange('hoursSinceInjury', parseFloat(e.target.value) || 0)}
               className={fieldErrors.hoursSinceInjury ? 'border-red-500' : ''}
+              aria-describedby="hours-help hours-error"
+              aria-invalid={!!fieldErrors.hoursSinceInjury}
+              aria-required="true"
             />
+            <p id="hours-help" className="text-xs text-muted-foreground sr-only">
+              Time elapsed since burn injury occurred, affects fluid calculation timing
+            </p>
             {fieldErrors.hoursSinceInjury && (
-              <p className="text-sm text-red-600">{fieldErrors.hoursSinceInjury}</p>
+              <p id="hours-error" className="text-sm text-red-600" role="alert" aria-live="polite">
+                {fieldErrors.hoursSinceInjury}
+              </p>
             )}
           </div>
 
@@ -299,38 +353,81 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
               placeholder="e.g., scalding, flame, contact"
               value={patientData.mechanism || ''}
               onChange={(e) => handleInputChange('mechanism', e.target.value)}
+              aria-describedby="mechanism-help"
+              aria-required="false"
             />
+            <p id="mechanism-help" className="text-xs text-muted-foreground sr-only">
+              Optional description of how the burn injury occurred
+            </p>
           </div>
 
           {/* Special Sites */}
-          <div className="space-y-2" data-field="special-sites">
-            <Label>Special Areas Involved</Label>
-            <div className="grid grid-cols-2 gap-2">
+          <fieldset 
+            className="space-y-2" 
+            data-field="special-sites"
+            role="group"
+            aria-labelledby="special-sites-legend"
+            aria-describedby="special-sites-help"
+          >
+            <legend id="special-sites-legend" className="text-sm font-medium">Special Areas Involved</legend>
+            <p id="special-sites-help" className="text-xs text-muted-foreground">
+              Select areas that require special attention (face, hands, feet, perineum, major joints)
+            </p>
+            <div className="grid grid-cols-2 gap-2" role="list">
               {Object.entries(patientData.specialSites).map(([site, checked]) => (
-                <label key={site} className="flex items-center space-x-2">
+                <label 
+                  key={site} 
+                  className="flex items-center space-x-2 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 rounded p-1"
+                  role="listitem"
+                >
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={(e) => handleSpecialSiteChange(site, e.target.checked)}
-                    className="rounded border-gray-300"
+                    className="rounded border-gray-300 focus:ring-2 focus:ring-primary"
+                    aria-describedby={`special-site-${site}-desc`}
                   />
                   <span className="text-sm capitalize">{site}</span>
+                  <span id={`special-site-${site}-desc`} className="sr-only">
+                    {site === 'face' && 'May require airway management'}
+                    {site === 'hands' && 'Critical for function, may need specialist care'}
+                    {site === 'feet' && 'Important for mobility'}
+                    {site === 'perineum' && 'High infection risk area'}
+                    {site === 'majorJoints' && 'May limit mobility and function'}
+                  </span>
                 </label>
               ))}
             </div>
-          </div>
+          </fieldset>
 
           {/* Current TBSA Display */}
           {currentTbsa > 0 && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-              <p className="text-sm font-medium">
+            <div 
+              className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              aria-labelledby="current-tbsa-label"
+            >
+              <p id="current-tbsa-label" className="text-sm font-medium">
                 Current TBSA: <span className="text-lg font-bold">{currentTbsa}%</span>
               </p>
+              <span className="sr-only">
+                Total Body Surface Area calculated as {currentTbsa} percent based on current selections
+              </span>
             </div>
           )}
 
-          <Button type="submit" className="w-full burn-wizard-primary-button focus-ring touch-target" size="lg">
+          <Button 
+            type="submit" 
+            className="w-full burn-wizard-primary-button focus-ring touch-target" 
+            size="lg"
+            aria-describedby="submit-button-help"
+          >
             Review Burn Plan
+            <span id="submit-button-help" className="sr-only">
+              Calculate fluid requirements and generate burn assessment report
+            </span>
           </Button>
         </form>
       </CardContent>

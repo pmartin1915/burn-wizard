@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { PersistStorage } from 'zustand/middleware';
 import { createEncryptedStorageAdapter } from '@/core/encryptedStorage';
 import type { PatientData, RegionSelection, TbsaResult, FluidResult, AppSettings, BurnDepth, BodyArea, BurnFraction } from '@/domain/types';
 
@@ -23,6 +24,11 @@ interface WizardState {
   // Tutorial state
   tutorials: TutorialState;
   
+  // Metadata for auto-save tracking
+  metadata?: {
+    lastAutoSave?: string;
+  };
+  
   // Patient data actions
   setPatientData: (data: Partial<PatientData>) => void;
   setRegionSelection: (region: string, fraction: number, depth?: BurnDepth) => void;
@@ -36,6 +42,9 @@ interface WizardState {
   
   // Tutorial actions (simplified)
   markGuidedTourSeen: () => void;
+  
+  // Metadata actions
+  setMetadata: (metadata: { lastAutoSave?: string }) => void;
   
   // General actions
   clearAllData: () => void;
@@ -67,7 +76,7 @@ const initialTutorialState: TutorialState = {
 
 export const useWizardStore = create<WizardState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       patientData: initialPatientData,
       regionSelections: [],
       tbsaResult: null,
@@ -128,6 +137,12 @@ export const useWizardStore = create<WizardState>()(
           },
         })),
 
+      // Metadata actions
+      setMetadata: (metadata) =>
+        set((state) => ({
+          metadata: { ...state.metadata, ...metadata },
+        })),
+
       clearAllData: () =>
         set({
           patientData: initialPatientData,
@@ -142,12 +157,13 @@ export const useWizardStore = create<WizardState>()(
         encryptionEnabled: true,
         storageKey: 'burn-wizard-encrypted-store',
         version: 1
-      }) as any,
+      }) as PersistStorage<Partial<WizardState>>,
       partialize: (state): Partial<WizardState> => ({
         patientData: state.patientData,
         regionSelections: state.regionSelections,
         settings: state.settings,
         tutorials: state.tutorials,
+        metadata: state.metadata,
         // Note: tbsaResult and fluidResult are not persisted for security
         // (they can be recalculated from patient data)
       }),

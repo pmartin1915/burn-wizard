@@ -3,7 +3,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, X } from 'lucide-react';
 import { useWizardStore } from '@/store/useWizardStore';
-import { GuidedTour } from '@/components/ui/GuidedTour';
 import InputForm from '@/components/InputForm';
 import BodyMap from '@/components/BodyMap';
 import BurnDepthChart from '@/components/BurnDepthChart';
@@ -12,25 +11,12 @@ import BodyRegionHeatMap from '@/components/BodyRegionHeatMap';
 
 interface HomeProps {
   onNavigate: (route: 'home' | 'review' | 'settings' | 'tutorials') => void;
+  onStartTour: () => void;
 }
 
-export default function Home({ onNavigate }: HomeProps) {
+export default function Home({ onNavigate, onStartTour }: HomeProps) {
   const { tutorials, markGuidedTourSeen } = useWizardStore();
   const [showWelcome, setShowWelcome] = React.useState(!tutorials.hasSeenGuidedTour);
-  const [showTour, setShowTour] = React.useState(false);
-
-  const handleStartTutorial = () => {
-    setShowWelcome(false);
-    setShowTour(true);
-  };
-
-  const handleTourComplete = () => {
-    markGuidedTourSeen();
-  };
-
-  const handleTourClose = () => {
-    setShowTour(false);
-  };
 
   const dismissWelcome = () => {
     setShowWelcome(false);
@@ -72,7 +58,7 @@ export default function Home({ onNavigate }: HomeProps) {
                     use the body map, and calculate TBSA in just 5 minutes.
                   </p>
                   <div className="flex items-center gap-3">
-                    <Button onClick={handleStartTutorial} className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button onClick={onStartTour} className="bg-blue-600 hover:bg-blue-700 text-white">
                       <BookOpen className="h-4 w-4 mr-2" />
                       Start Tutorial (5 min)
                     </Button>
@@ -121,13 +107,6 @@ export default function Home({ onNavigate }: HomeProps) {
           </div>
         </div>
       </div>
-
-      {/* Guided Tour */}
-      <GuidedTour 
-        isOpen={showTour}
-        onClose={handleTourClose}
-        onComplete={handleTourComplete}
-      />
     </div>
   );
 }
