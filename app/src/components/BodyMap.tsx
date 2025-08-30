@@ -130,18 +130,18 @@ export default function BodyMap() {
           Interactive body map for selecting burn involvement by region and depth. Click regions to cycle through burn percentages.
         </p>
         
-        {/* TBSA Display Card with Circular Progress */}
+        {/* TBSA Display Card with Circular Progress - Mobile Optimized */}
         <div 
-          className="burn-wizard-card-primary rounded-card p-6 mb-4"
+          className="mobile-card mb-4"
           role="status"
           aria-live="polite"
           aria-atomic="true"
           aria-labelledby="tbsa-result-title"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h3 id="tbsa-result-title" className="burn-wizard-heading-sm text-primary mb-2">Total Body Surface Area</h3>
-              <p className="burn-wizard-body-sm text-primary/70 mb-4">Current calculation based on selections</p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <h3 id="tbsa-result-title" className="mobile-subtitle text-primary mb-2">Total Body Surface Area</h3>
+              <p className="mobile-body text-primary/70 mb-3 sm:mb-4">Current calculation based on selections</p>
               
               <div className={cn(
                 "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300",
@@ -281,9 +281,9 @@ export default function BodyMap() {
             </div>
           </div>
 
-          {/* Body Regions Grid */}
+          {/* Body Regions Grid - Mobile Optimized */}
           <div 
-            className="grid grid-cols-2 md:grid-cols-3 gap-2"
+            className="mobile-grid-auto"
             role="application"
             aria-labelledby="body-regions-title"
             aria-describedby="body-regions-instructions"
@@ -316,7 +316,7 @@ export default function BodyMap() {
                     }
                   }}
                   data-region={region.key}
-                  className={`burn-region-button p-3 rounded-md text-sm font-medium transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2 ${colorClass}`}
+                  className={`burn-region-button touch-target-large p-2 sm:p-3 rounded-md text-xs sm:text-sm font-medium transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-feedback ${colorClass}`}
                   title={`${region.label}: ${Math.round(fraction * 100)}%`}
                   aria-label={`${region.label}: ${Math.round(fraction * 100)}% burn involvement. Click to cycle to next percentage.`}
                   aria-describedby={`region-${region.key}-status`}

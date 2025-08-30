@@ -425,6 +425,472 @@ export const CLINICAL_SCENARIOS: ClinicalScenario[] = [
       'How do you assess for compartment syndrome?',
     ],
   },
+
+  {
+    id: 'infant-contact',
+    title: 'Infant Contact Burn - Hot Object',
+    difficulty: 'beginner',
+    category: 'pediatric',
+    
+    description: 'A 6-month-old infant with palm burns from touching a hot iron.',
+    backstory: 'Infant was crawling and grabbed the iron that had been left cooling on the ironing board. Contact time estimated at 2-3 seconds.',
+    presentingComplaint: 'Infant crying with obvious burns to right palm. Parent noticed immediately and ran cold water over hand.',
+    physicalExam: 'Alert 6-month-old in distress. Well-demarcated burn to right palm, appears deep partial thickness. No other injuries noted.',
+    
+    patientData: {
+      ageMonths: 6,
+      weightKg: 7,
+      hoursSinceInjury: 0.25,
+      mechanism: 'Contact burn - hot iron',
+      specialSites: {
+        face: false,
+        hands: true,
+        feet: false,
+        perineum: false,
+        majorJoints: false,
+      },
+    },
+    
+    burnRegions: [
+      { region: 'R_Hand', fraction: 0.5, depth: 'deep-partial' },
+    ],
+    
+    learningObjectives: [
+      'Understand contact burn patterns in infants',
+      'Learn infant pain assessment techniques',
+      'Recognize when small burns require specialist care',
+      'Apply burn first aid principles',
+    ],
+    
+    keyTeachingPoints: [
+      'Hand burns in infants often require specialist treatment',
+      'Contact burns typically have sharp, well-defined edges',
+      'Infants have limited ability to withdraw from hot objects',
+      'Even small burns can be functionally significant',
+    ],
+    
+    clinicalPearls: [
+      'Cooling first aid should be applied for 10-20 minutes',
+      'Avoid ice or very cold water in infants',
+      'Hand function is critical in developing children',
+      'Document exact mechanism and timeline',
+    ],
+    
+    commonMistakes: [
+      'Dismissing small burns as minor in children',
+      'Applying ice instead of cool water',
+      'Not considering burn center referral',
+      'Inadequate pain management for infants',
+    ],
+    
+    expectedTbsa: 1,
+    expectedFluidRate: 0, // Below fluid threshold but needs specialist care
+    expectedTransfer: true, // Due to hand involvement in infant
+    
+    references: [
+      'Pediatric Burn First Aid Guidelines',
+      'American Burn Association Referral Criteria',
+    ],
+    
+    followUpQuestions: [
+      'Why might a 1% burn require specialist care?',
+      'How do you assess pain in a 6-month-old?',
+      'What first aid measures are most effective?',
+    ],
+  },
+
+  {
+    id: 'teen-flame-clothing',
+    title: 'Adolescent Clothing Fire',
+    difficulty: 'intermediate',
+    category: 'pediatric',
+    
+    description: 'A 16-year-old sustained burns when loose clothing caught fire near a campfire.',
+    backstory: 'Teenager was standing close to campfire when wind blew flames onto loose synthetic shirt. Clothing ignited and burned for approximately 10 seconds before being extinguished.',
+    presentingComplaint: 'Burns to anterior chest, abdomen, and both arms. Patient alert and in significant pain.',
+    physicalExam: 'Alert adolescent with mixed-depth burns. Synthetic fabric remnants adherent to skin in some areas. Circumferential burns to bilateral upper extremities.',
+    
+    patientData: {
+      ageMonths: 192, // 16 years old
+      weightKg: 60,
+      hoursSinceInjury: 2,
+      mechanism: 'Flame - synthetic clothing ignition',
+      specialSites: {
+        face: false,
+        hands: true,
+        feet: false,
+        perineum: false,
+        majorJoints: true,
+      },
+    },
+    
+    burnRegions: [
+      { region: 'Ant_Trunk', fraction: 0.75, depth: 'deep-partial' },
+      { region: 'R_U_Arm', fraction: 1, depth: 'deep-partial' },
+      { region: 'L_U_Arm', fraction: 1, depth: 'deep-partial' },
+      { region: 'R_L_Arm', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'L_L_Arm', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'R_Hand', fraction: 0.25, depth: 'superficial-partial' },
+      { region: 'L_Hand', fraction: 0.25, depth: 'superficial-partial' },
+    ],
+    
+    learningObjectives: [
+      'Recognize clothing fire burn patterns',
+      'Understand circumferential burn complications',
+      'Learn synthetic fabric burn characteristics',
+      'Address adolescent psychological needs',
+    ],
+    
+    keyTeachingPoints: [
+      'Synthetic fabrics melt and adhere to skin causing deeper burns',
+      'Circumferential burns may require escharotomy',
+      'Adolescents have unique psychological needs during trauma',
+      'Stop, drop, and roll education is crucial',
+    ],
+    
+    clinicalPearls: [
+      'Do not remove adherent fabric remnants initially',
+      'Monitor for compartment syndrome with circumferential burns',
+      'Body image concerns are significant in adolescents',
+      'Consider child life specialist involvement',
+    ],
+    
+    commonMistakes: [
+      'Aggressive removal of adherent synthetic material',
+      'Missing early signs of compartment syndrome',
+      'Not addressing psychological trauma',
+      'Underestimating fluid requirements',
+    ],
+    
+    expectedTbsa: 18,
+    expectedFluidRate: 216, // ml/hr for first 8 hours
+    expectedTransfer: true,
+    
+    references: [
+      'Clothing Fire Prevention Guidelines',
+      'Adolescent Trauma Psychology Resources',
+    ],
+    
+    followUpQuestions: [
+      'How do synthetic fabrics affect burn injury?',
+      'What are signs of compartment syndrome?',
+      'How do you address body image concerns?',
+    ],
+  },
+
+  {
+    id: 'workplace-grease',
+    title: 'Commercial Kitchen Grease Burn',
+    difficulty: 'intermediate',
+    category: 'adult',
+    
+    description: 'A 45-year-old restaurant worker splashed with hot cooking oil.',
+    backstory: 'Chef was transferring hot oil from fryer when container slipped, splashing oil onto lower extremities. Oil temperature approximately 180°C (356°F).',
+    presentingComplaint: 'Severe burns to both legs and feet. Patient in extreme pain, oil soaked through pants.',
+    physicalExam: 'Alert male in severe pain. Oil-soaked clothing adherent to skin on bilateral lower extremities. Mixed-depth burns evident.',
+    
+    patientData: {
+      ageMonths: 540, // 45 years old
+      weightKg: 85,
+      hoursSinceInjury: 0.5,
+      mechanism: 'Hot oil/grease - commercial cooking accident',
+      specialSites: {
+        face: false,
+        hands: false,
+        feet: true,
+        perineum: false,
+        majorJoints: true,
+      },
+    },
+    
+    burnRegions: [
+      { region: 'R_Thigh', fraction: 0.5, depth: 'deep-partial' },
+      { region: 'L_Thigh', fraction: 0.5, depth: 'deep-partial' },
+      { region: 'R_Leg', fraction: 0.75, depth: 'full-thickness' },
+      { region: 'L_Leg', fraction: 0.75, depth: 'full-thickness' },
+      { region: 'R_Foot', fraction: 1, depth: 'deep-partial' },
+      { region: 'L_Foot', fraction: 1, depth: 'deep-partial' },
+    ],
+    
+    learningObjectives: [
+      'Understand hot oil burn characteristics',
+      'Learn occupational burn prevention',
+      'Recognize deep burn assessment challenges',
+      'Apply workplace injury protocols',
+    ],
+    
+    keyTeachingPoints: [
+      'Hot oil causes deeper burns than hot water due to higher temperature',
+      'Oil adheres to skin causing prolonged contact',
+      'Foot burns often require prolonged treatment',
+      'Workplace safety protocols can prevent most burns',
+    ],
+    
+    clinicalPearls: [
+      'Cool oil burns same as other thermal burns',
+      'Remove oil-soaked clothing carefully',
+      'Foot burns may require non-weight bearing',
+      'Document workplace safety factors',
+    ],
+    
+    commonMistakes: [
+      'Not cooling oil burns adequately',
+      'Aggressive clothing removal',
+      'Underestimating burn depth',
+      'Missing infection risk in foot burns',
+    ],
+    
+    expectedTbsa: 15,
+    expectedFluidRate: 255, // ml/hr
+    expectedTransfer: true, // Due to feet involvement and full-thickness areas
+    
+    references: [
+      'Occupational Burn Prevention Guidelines',
+      'Food Service Safety Protocols',
+    ],
+    
+    followUpQuestions: [
+      'How do hot oil burns differ from scalds?',
+      'What workplace modifications prevent these injuries?',
+      'Why are foot burns particularly concerning?',
+    ],
+  },
+
+  {
+    id: 'sun-medication',
+    title: 'Phototoxic Medication Reaction',
+    difficulty: 'advanced',
+    category: 'special',
+    
+    description: 'A 58-year-old woman with severe burns after sun exposure while on antibiotics.',
+    backstory: 'Patient started doxycycline 3 days ago for pneumonia. Spent 4 hours gardening in bright sunlight without sun protection.',
+    presentingComplaint: 'Severe burning and blistering on all sun-exposed areas. Pain began 6 hours after sun exposure.',
+    physicalExam: 'Alert female with extensive blistering and erythema on face, neck, arms, and legs. Sharp demarcation at clothing lines.',
+    
+    patientData: {
+      ageMonths: 696, // 58 years old
+      weightKg: 65,
+      hoursSinceInjury: 12,
+      mechanism: 'Phototoxic reaction - doxycycline + UV exposure',
+      specialSites: {
+        face: true,
+        hands: true,
+        feet: false,
+        perineum: false,
+        majorJoints: false,
+      },
+    },
+    
+    burnRegions: [
+      { region: 'Head', fraction: 0.75, depth: 'superficial-partial' },
+      { region: 'Neck', fraction: 1, depth: 'superficial-partial' },
+      { region: 'R_U_Arm', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'L_U_Arm', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'R_L_Arm', fraction: 1, depth: 'superficial-partial' },
+      { region: 'L_L_Arm', fraction: 1, depth: 'superficial-partial' },
+      { region: 'R_Hand', fraction: 1, depth: 'superficial-partial' },
+      { region: 'L_Hand', fraction: 1, depth: 'superficial-partial' },
+    ],
+    
+    learningObjectives: [
+      'Recognize drug-induced photosensitivity',
+      'Understand phototoxic vs photoallergic reactions',
+      'Learn medication-related burn causes',
+      'Apply appropriate treatment for drug reactions',
+    ],
+    
+    keyTeachingPoints: [
+      'Many medications increase photosensitivity',
+      'Phototoxic reactions mimic thermal burns',
+      'Sharp demarcation at clothing lines is characteristic',
+      'Reaction severity depends on drug level and UV exposure',
+    ],
+    
+    clinicalPearls: [
+      'Discontinue offending medication if possible',
+      'Treat symptomatically like thermal burns',
+      'Consider systemic effects of extensive reactions',
+      'Patient education about future sun exposure',
+    ],
+    
+    commonMistakes: [
+      'Not identifying medication as cause',
+      'Continuing offending medication',
+      'Treating as infectious condition',
+      'Inadequate patient education about prevention',
+    ],
+    
+    expectedTbsa: 14,
+    expectedFluidRate: 182, // Lower priority than thermal burns
+    expectedTransfer: false, // Usually managed medically
+    
+    references: [
+      'Drug-Induced Photosensitivity Guidelines',
+      'Dermatologic Emergency Management',
+    ],
+    
+    followUpQuestions: [
+      'Which medications commonly cause photosensitivity?',
+      'How do phototoxic reactions differ from photoallergic?',
+      'What patient education is needed?',
+    ],
+  },
+
+  {
+    id: 'flash-explosion',
+    title: 'Flash Burn - Gas Explosion',
+    difficulty: 'advanced',
+    category: 'special',
+    
+    description: 'A 31-year-old mechanic injured in a gasoline vapor flash explosion.',
+    backstory: 'Patient was working on car engine when gasoline vapors ignited from spark. Brief but intense flash flame exposure lasting 1-2 seconds.',
+    presentingComplaint: 'Burns to face, hands, and arms. Patient reports temporary vision loss that is now improving.',
+    physicalExam: 'Alert male with superficial burns to face and upper extremities. Singed eyebrows and hair. Corneal burns suspected.',
+    
+    patientData: {
+      ageMonths: 372, // 31 years old
+      weightKg: 78,
+      hoursSinceInjury: 1,
+      mechanism: 'Flash burn - gasoline vapor explosion',
+      specialSites: {
+        face: true,
+        hands: true,
+        feet: false,
+        perineum: false,
+        majorJoints: false,
+      },
+    },
+    
+    burnRegions: [
+      { region: 'Head', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'R_U_Arm', fraction: 0.75, depth: 'superficial-partial' },
+      { region: 'L_U_Arm', fraction: 0.75, depth: 'superficial-partial' },
+      { region: 'R_L_Arm', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'L_L_Arm', fraction: 0.5, depth: 'superficial-partial' },
+      { region: 'R_Hand', fraction: 1, depth: 'superficial-partial' },
+      { region: 'L_Hand', fraction: 1, depth: 'superficial-partial' },
+    ],
+    
+    learningObjectives: [
+      'Understand flash burn characteristics',
+      'Recognize associated injuries (eye, respiratory)',
+      'Learn explosion injury patterns',
+      'Apply multi-system trauma assessment',
+    ],
+    
+    keyTeachingPoints: [
+      'Flash burns are typically superficial but extensive',
+      'Always assess for eye and respiratory injuries',
+      'Brief exposure time limits burn depth',
+      'May have associated trauma from explosion force',
+    ],
+    
+    clinicalPearls: [
+      'Immediate ophthalmologic consultation for eye involvement',
+      'Check for singed nasal hairs indicating airway exposure',
+      'Flash burns often heal well with conservative treatment',
+      'Consider carbon monoxide exposure',
+    ],
+    
+    commonMistakes: [
+      'Missing eye injuries',
+      'Not assessing for inhalation injury',
+      'Overestimating burn severity',
+      'Missing associated blast injuries',
+    ],
+    
+    expectedTbsa: 12,
+    expectedFluidRate: 187, // ml/hr
+    expectedTransfer: true, // Due to face/eye involvement
+    
+    references: [
+      'Flash Burn Management Protocols',
+      'Occupational Explosion Injury Guidelines',
+    ],
+    
+    followUpQuestions: [
+      'Why are flash burns typically superficial?',
+      'What associated injuries should you assess for?',
+      'How do you evaluate for corneal burns?',
+    ],
+  },
+
+  {
+    id: 'abuse-immersion',
+    title: 'Suspected Non-Accidental Burn',
+    difficulty: 'advanced',
+    category: 'pediatric',
+    
+    description: 'A 3-year-old with suspicious immersion burns brought by stepfather.',
+    backstory: 'Child brought to ED by stepfather who reports child climbed into bathtub with hot water running. Mother not present. Vague timeline given.',
+    presentingComplaint: 'Burns to bilateral feet and buttocks. Stepfather states accident happened while he was on phone.',
+    physicalExam: 'Quiet, withdrawn 3-year-old. Well-demarcated burns with sharp waterline. No splash marks. Old bruising noted on arms.',
+    
+    patientData: {
+      ageMonths: 36, // 3 years old
+      weightKg: 14,
+      hoursSinceInjury: 4,
+      mechanism: 'Reported accidental immersion - suspicious features',
+      specialSites: {
+        face: false,
+        hands: false,
+        feet: true,
+        perineum: true,
+        majorJoints: false,
+      },
+    },
+    
+    burnRegions: [
+      { region: 'R_Buttock', fraction: 1, depth: 'deep-partial' },
+      { region: 'L_Buttock', fraction: 1, depth: 'deep-partial' },
+      { region: 'Genitalia', fraction: 0.5, depth: 'deep-partial' },
+      { region: 'R_Foot', fraction: 1, depth: 'deep-partial' },
+      { region: 'L_Foot', fraction: 1, depth: 'deep-partial' },
+    ],
+    
+    learningObjectives: [
+      'Recognize signs of non-accidental trauma',
+      'Understand mandatory reporting requirements',
+      'Learn suspicious burn patterns',
+      'Apply child protection protocols',
+    ],
+    
+    keyTeachingPoints: [
+      'Uniform depth and sharp demarcation suggest forced immersion',
+      'Absence of splash marks is concerning',
+      'Inconsistent history and delayed presentation are red flags',
+      'Healthcare providers are mandatory reporters',
+    ],
+    
+    clinicalPearls: [
+      'Document everything meticulously with photos',
+      'Involve child protective services immediately',
+      'Do not confront caregivers directly',
+      'Ensure child safety is priority',
+    ],
+    
+    commonMistakes: [
+      'Accepting implausible explanations',
+      'Not involving child protective services',
+      'Inadequate documentation',
+      'Confronting suspected abuser directly',
+    ],
+    
+    expectedTbsa: 10,
+    expectedFluidRate: 140, // ml/hr
+    expectedTransfer: true, // For specialized pediatric care and investigation
+    
+    references: [
+      'Child Abuse Recognition Guidelines',
+      'Mandatory Reporting Requirements',
+    ],
+    
+    followUpQuestions: [
+      'What features suggest non-accidental trauma?',
+      'What are your reporting obligations?',
+      'How do you ensure child safety?',
+    ],
+  },
 ];
 
 // Utility functions for scenario management

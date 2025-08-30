@@ -49,7 +49,7 @@ const tourSteps: TourStep[] = [
     title: 'Real-time TBSA Calculation',
     description: 'Watch this area! As you select burned regions, the Total Body Surface Area percentage updates automatically using the medically-accurate Lund-Browder method.',
     target: '[data-tour="tbsa-display"]',
-    position: 'bottom',
+    position: 'left',
     highlight: true
   },
   {
@@ -481,10 +481,10 @@ export const GuidedTour = ({ isOpen, onClose, onComplete, onNavigate }: GuidedTo
         aria-hidden="true"
       />
       
-      {/* Tooltip - Burn Wizard themed with smooth transitions */}
+      {/* Tooltip - Mobile Optimized with Burn Wizard theming */}
       <div
         ref={tooltipRef}
-        className="fixed z-[9999] bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-orange-200 dark:border-orange-700 p-6 max-w-sm w-full"
+        className="fixed z-[9999] bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-orange-200 dark:border-orange-700 p-4 sm:p-6 max-w-[90vw] sm:max-w-sm w-full mobile-scroll-smooth"
         style={{
           top: `${position.y}px`,
           left: `${position.x}px`

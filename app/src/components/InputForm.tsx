@@ -189,23 +189,23 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
 
   return (
     <Card 
-      className="w-full burn-wizard-card medical-card animate-fade-in-up" 
+      className="w-full mobile-card animate-fade-in-up" 
       data-element="patient-info" 
       data-tour="patient-info"
       role="region"
       aria-labelledby="patient-info-title"
       aria-describedby="patient-info-description"
     >
-      <CardHeader>
-        <CardTitle id="patient-info-title" className="burn-wizard-heading-md text-primary">Patient Information</CardTitle>
+      <CardHeader className="pb-3 sm:pb-6">
+        <CardTitle id="patient-info-title" className="mobile-subtitle text-primary">Patient Information</CardTitle>
         <p id="patient-info-description" className="sr-only">
           Enter patient demographics and injury details for burn assessment calculation
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0">
         <form 
           onSubmit={handleSubmit} 
-          className="space-y-6"
+          className="mobile-section-spacing"
           aria-labelledby="patient-info-title"
           role="form"
         >
@@ -226,11 +226,11 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
             </div>
           )}
 
-          {/* Age Section with Unit Toggle */}
-          <fieldset className="space-y-2" role="group" aria-labelledby="age-legend">
+          {/* Age Section with Unit Toggle - Mobile Optimized */}
+          <fieldset className="mobile-form-group" role="group" aria-labelledby="age-legend">
             <legend id="age-legend" className="sr-only">Patient age input with unit selection</legend>
-            <div className="flex items-center gap-4">
-              <Label htmlFor="ageInput" className="flex-shrink-0">Age</Label>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <Label htmlFor="ageInput" className="flex-shrink-0 mobile-body font-medium">Age</Label>
               <div 
                 className="flex items-center gap-2" 
                 role="radiogroup" 
@@ -244,7 +244,7 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
                   aria-checked={ageUnit === 'months'}
                   aria-labelledby="age-unit-months"
                   onClick={() => setAgeUnit('months')}
-                  className={`px-3 py-1 text-sm rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+                  className={`touch-target px-3 py-2 text-sm rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary touch-feedback-subtle ${
                     ageUnit === 'months' 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -258,7 +258,7 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
                   aria-checked={ageUnit === 'years'}
                   aria-labelledby="age-unit-years"
                   onClick={() => setAgeUnit('years')}
-                  className={`px-3 py-1 text-sm rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+                  className={`touch-target px-3 py-2 text-sm rounded transition-colors focus:outline-none focus:ring-2 focus:ring-primary touch-feedback-subtle ${
                     ageUnit === 'years' 
                       ? 'bg-primary text-primary-foreground' 
                       : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
@@ -277,13 +277,13 @@ export default function InputForm({ onReviewClick }: InputFormProps) {
               step={ageUnit === 'years' ? "0.1" : "1"}
               value={getDisplayedAge()}
               onChange={(e) => handleInputChange('ageMonths', parseFloat(e.target.value) || 0)}
-              className={`w-full ${fieldErrors.ageMonths ? 'border-red-500' : ''}`}
+              className={`mobile-input ${fieldErrors.ageMonths ? 'border-red-500' : ''}`}
               placeholder={ageUnit === 'years' ? 'e.g., 2.5' : 'e.g., 30'}
               aria-describedby="age-help age-error"
               aria-invalid={!!fieldErrors.ageMonths}
               aria-required="true"
             />
-            <p id="age-help" className="text-xs text-muted-foreground">
+            <p id="age-help" className="mobile-caption">
               {ageUnit === 'years' ? 'Decimal values accepted (e.g., 2.5 years)' : 'Enter age in months'}
             </p>
             {fieldErrors.ageMonths && (
