@@ -16,6 +16,7 @@ import AnalgesiaTips from './components/AnalgesiaTips';
 import NotePreview from './components/NotePreview';
 import ClinicalScenarios from './components/ClinicalScenarios';
 import { GuidedTour } from './components/ui/GuidedTour';
+import { TourErrorBoundary } from './components/ui/TourErrorBoundary';
 import { KeyboardShortcutsModal } from './components/ui/KeyboardShortcutsModal';
 import { SaveStatusIndicator } from './components/ui/SaveStatusIndicator';
 import { LiveAnnouncerProvider } from './components/ui/LiveAnnouncer';
@@ -290,12 +291,14 @@ function App() {
         </div>
 
         {/* Guided Tour - Global component that persists across tabs */}
-        <GuidedTour 
-          isOpen={showTour}
-          onClose={handleTourClose}
-          onComplete={handleTourComplete}
-          onNavigate={(tab) => setCurrentTab(tab as TabRoute)}
-        />
+        <TourErrorBoundary onError={handleTourClose}>
+          <GuidedTour 
+            isOpen={showTour}
+            onClose={handleTourClose}
+            onComplete={handleTourComplete}
+            onNavigate={(tab) => setCurrentTab(tab as TabRoute)}
+          />
+        </TourErrorBoundary>
 
         {/* Keyboard Shortcuts Help Modal */}
         <KeyboardShortcutsModal 

@@ -107,7 +107,9 @@
       "Bash(/bashes)",
       "Bash(wmic process where \"name='node.exe'\" get commandline,processid:*)",
       "Bash(wmic process where:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(ipconfig)",
+      "Bash(netsh:*)"
     ],
     "deny": [],
     "ask": [],

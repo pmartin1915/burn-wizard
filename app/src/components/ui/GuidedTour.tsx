@@ -218,92 +218,311 @@ export const GuidedTour = ({ isOpen, onClose, onComplete, onNavigate }: GuidedTo
     setPosition(newPosition);
   }, [currentStep, isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const step = tourSteps[currentStep];
-    const targetElement = document.querySelector(step.target) as HTMLElement;
+  // Enhanced cleanup function with comprehensive error handling
+  const cleanupHighlightedElement = useCallback((element: HTMLElement | null) => {
+    if (!element) return;
     
-    if (targetElement && step.highlight) {
-      setHighlightedElement(targetElement);
-      const computedStyle = window.getComputedStyle(targetElement);
+    try {
+      // Remove tour highlight class
+      element.classList.remove('tour-highlight');
       
-      // Store original classes and styles for cleanup
-      targetElement.dataset.originalClasses = targetElement.className;
-      targetElement.dataset.originalPosition = targetElement.style.position || '';
-      targetElement.dataset.originalZIndex = targetElement.style.zIndex || '';
-      
-      // Add highlight class instead of inline styles
-      targetElement.classList.add('tour-highlight');
-      
-      // Ensure proper positioning for the highlight effect
-      if (computedStyle.position !== 'fixed') {
-        targetElement.style.position = targetElement.style.position || 'relative';
+      // Restore original styles if they were stored
+      if (element.dataset.originalClasses !== undefined) {
+        element.className = element.dataset.originalClasses;
       }
-      targetElement.style.zIndex = '9997';
+      if (element.dataset.originalPosition !== undefined) {
+        element.style.position = element.dataset.originalPosition;
+      }
+      if (element.dataset.originalZIndex !== undefined) {
+        element.style.zIndex = element.dataset.originalZIndex;
+      }
       
-      // Scroll element into view
-      targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Clean up data attributes
+      delete element.dataset.originalClasses;
+      delete element.dataset.originalPosition;
+      delete element.dataset.originalZIndex;
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🧹 Tour: Cleaned up highlighted element');
+      }
+    } catch (error) {
+      console.warn('⚠️ Tour: Error during element cleanup:', error);
+      // Force remove any tour-related classes and attributes
+      try {
+        element.classList.remove('tour-highlight');
+        ['originalClasses', 'originalPosition', 'originalZIndex'].forEach(attr => {
+          delete element.dataset[attr];
+        });
+      } catch (e) {
+        console.error('🚨 Tour: Critical cleanup error:', e);
+      }
+    }
+  }, []);
+
+  // Global cleanup function to handle stuck states
+  const cleanupAllTourElements = useCallback(() => {
+    try {
+      // Find and clean up any elements with tour highlights
+      const highlightedElements = document.querySelectorAll('.tour-highlight');
+      highlightedElements.forEach(element => {
+        cleanupHighlightedElement(element as HTMLElement);
+      });
+      
+      // Clear highlighted element state
+      setHighlightedElement(null);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🧹 Tour: Global cleanup completed');
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Global cleanup error:', error);
+    }
+  }, [cleanupHighlightedElement]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      // Clean up everything when tour closes
+      cleanupAllTourElements();
+      return;
     }
 
-    return () => {
+    // Validate step bounds
+    if (currentStep < 0 || currentStep >= tourSteps.length) {
+      console.error('🚨 Tour: Invalid step index:', currentStep);
+      setCurrentStep(0); // Reset to first step
+      return;
+    }
+
+    try {
+      // Clean up previous highlighted element first
       if (highlightedElement) {
-        // Restore original classes and styles
-        highlightedElement.className = highlightedElement.dataset.originalClasses || '';
-        highlightedElement.style.position = highlightedElement.dataset.originalPosition || '';
-        highlightedElement.style.zIndex = highlightedElement.dataset.originalZIndex || '';
-        
-        // Clean up data attributes
-        delete highlightedElement.dataset.originalClasses;
-        delete highlightedElement.dataset.originalPosition;
-        delete highlightedElement.dataset.originalZIndex;
+        cleanupHighlightedElement(highlightedElement);
+        setHighlightedElement(null);
+      }
+
+      const step = tourSteps[currentStep];
+      if (!step) {
+        console.error('🚨 Tour: Step not found:', currentStep);
+        return;
+      }
+
+      const targetElement = document.querySelector(step.target) as HTMLElement;
+      
+      if (!targetElement) {
+        console.warn('⚠️ Tour: Target element not found:', step.target);
+        // Continue without highlighting - don't break the tour
+        return;
+      }
+
+      if (step.highlight) {
+        try {
+          setHighlightedElement(targetElement);
+          const computedStyle = window.getComputedStyle(targetElement);
+          
+          // Store original state before making changes
+          targetElement.dataset.originalClasses = targetElement.className;
+          targetElement.dataset.originalPosition = targetElement.style.position || '';
+          targetElement.dataset.originalZIndex = targetElement.style.zIndex || '';
+          
+          // Add highlight class
+          targetElement.classList.add('tour-highlight');
+          
+          // Ensure proper positioning for the highlight effect
+          if (computedStyle.position !== 'fixed') {
+            targetElement.style.position = targetElement.style.position || 'relative';
+          }
+          targetElement.style.zIndex = '9997';
+          
+          // Safely scroll element into view
+          setTimeout(() => {
+            try {
+              targetElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'nearest'
+              });
+            } catch (scrollError) {
+              console.warn('⚠️ Tour: Scroll error:', scrollError);
+            }
+          }, 100);
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✨ Tour: Highlighted element for step', currentStep + 1);
+          }
+        } catch (error) {
+          console.error('🚨 Tour: Error highlighting element:', error);
+          setHighlightedElement(null);
+        }
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Critical error in step navigation:', error);
+      // Emergency recovery
+      cleanupAllTourElements();
+    }
+
+    // Cleanup function with enhanced error handling
+    return () => {
+      try {
+        if (highlightedElement) {
+          cleanupHighlightedElement(highlightedElement);
+        }
+      } catch (error) {
+        console.warn('⚠️ Tour: Cleanup error in effect return:', error);
       }
     };
-  }, [currentStep, isOpen, highlightedElement]);
+  }, [currentStep, isOpen, cleanupHighlightedElement, cleanupAllTourElements]);
 
   const nextStep = () => {
-    if (currentStep < tourSteps.length - 1) {
-      const newStep = currentStep + 1;
-      setCurrentStep(newStep);
-      // Announce step change to screen readers
-      const step = tourSteps[newStep];
-      announce(`Step ${newStep + 1} of ${tourSteps.length}: ${step.title}`, 'polite');
-    } else {
-      completeTour();
+    try {
+      if (currentStep < tourSteps.length - 1) {
+        const newStep = currentStep + 1;
+        
+        // Validate new step exists
+        if (newStep >= 0 && newStep < tourSteps.length && tourSteps[newStep]) {
+          setCurrentStep(newStep);
+          
+          // Announce step change to screen readers with error handling
+          try {
+            const step = tourSteps[newStep];
+            announce(`Step ${newStep + 1} of ${tourSteps.length}: ${step.title}`, 'polite');
+          } catch (announceError) {
+            console.warn('⚠️ Tour: Announcement error:', announceError);
+          }
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`➡️ Tour: Advanced to step ${newStep + 1}`);
+          }
+        } else {
+          console.error('🚨 Tour: Invalid next step:', newStep);
+        }
+      } else {
+        completeTour();
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Error in nextStep:', error);
+      // Emergency recovery - go to next step or complete
+      try {
+        if (currentStep < tourSteps.length - 1) {
+          setCurrentStep(currentStep + 1);
+        } else {
+          completeTour();
+        }
+      } catch (recoveryError) {
+        console.error('🚨 Tour: Recovery failed, closing tour:', recoveryError);
+        onClose();
+      }
     }
   };
 
   const prevStep = () => {
-    if (currentStep > 0) {
-      const newStep = currentStep - 1;
-      setCurrentStep(newStep);
-      // Announce step change to screen readers
-      const step = tourSteps[newStep];
-      announce(`Step ${newStep + 1} of ${tourSteps.length}: ${step.title}`, 'polite');
+    try {
+      if (currentStep > 0) {
+        const newStep = currentStep - 1;
+        
+        // Validate new step exists
+        if (newStep >= 0 && newStep < tourSteps.length && tourSteps[newStep]) {
+          setCurrentStep(newStep);
+          
+          // Announce step change to screen readers with error handling
+          try {
+            const step = tourSteps[newStep];
+            announce(`Step ${newStep + 1} of ${tourSteps.length}: ${step.title}`, 'polite');
+          } catch (announceError) {
+            console.warn('⚠️ Tour: Announcement error:', announceError);
+          }
+          
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`⬅️ Tour: Went back to step ${newStep + 1}`);
+          }
+        } else {
+          console.error('🚨 Tour: Invalid previous step:', newStep);
+        }
+      } else {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🛑 Tour: Already at first step');
+        }
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Error in prevStep:', error);
+      // Emergency recovery - try to go to previous step or stay at current
+      try {
+        if (currentStep > 0) {
+          setCurrentStep(currentStep - 1);
+        }
+      } catch (recoveryError) {
+        console.error('🚨 Tour: Recovery failed, closing tour:', recoveryError);
+        onClose();
+      }
     }
   };
 
   const restartTour = () => {
-    // Clean up any current highlights
-    if (highlightedElement) {
-      highlightedElement.className = highlightedElement.dataset.originalClasses || '';
-      highlightedElement.style.position = highlightedElement.dataset.originalPosition || '';
-      highlightedElement.style.zIndex = highlightedElement.dataset.originalZIndex || '';
+    try {
+      // Clean up all tour elements globally
+      cleanupAllTourElements();
       
-      delete highlightedElement.dataset.originalClasses;
-      delete highlightedElement.dataset.originalPosition;
-      delete highlightedElement.dataset.originalZIndex;
-      setHighlightedElement(null);
-    }
-    
-    // Reset to first step
-    setCurrentStep(0);
-    
-    // Navigate to TBSA tab if navigation function is available
-    if (onNavigate) {
-      onNavigate('tbsa');
+      // Reset to first step
+      setCurrentStep(0);
+      
+      // Navigate to appropriate tab if navigation function is available
+      try {
+        if (onNavigate) {
+          onNavigate('home');
+        }
+      } catch (navError) {
+        console.warn('⚠️ Tour: Navigation error during restart:', navError);
+      }
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Tour: Restarted tour');
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Error restarting tour:', error);
+      // Emergency recovery - force close and reopen
+      try {
+        onClose();
+        setTimeout(() => {
+          // This would need to be handled by parent component
+          console.log('🔄 Tour: Emergency restart completed');
+        }, 100);
+      } catch (emergencyError) {
+        console.error('🚨 Tour: Emergency restart failed:', emergencyError);
+      }
     }
   };
+
+  // Emergency recovery function for stuck states
+  const emergencyRecovery = useCallback(() => {
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🚨 Tour: Starting emergency recovery');
+      }
+      
+      // Force cleanup all tour elements
+      cleanupAllTourElements();
+      
+      // Reset all internal state
+      setCurrentStep(0);
+      setIsDragging(false);
+      setShowKeyboardHelp(false);
+      
+      // Reset position
+      setPosition({ x: 0, y: 0 });
+      
+      // Close tour as last resort
+      setTimeout(() => {
+        onClose();
+      }, 100);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Tour: Emergency recovery completed');
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Emergency recovery failed:', error);
+      // Force close immediately
+      onClose();
+    }
+  }, [cleanupAllTourElements, onClose]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -395,34 +614,50 @@ export const GuidedTour = ({ isOpen, onClose, onComplete, onNavigate }: GuidedTo
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   const completeTour = () => {
-    if (highlightedElement) {
-      // Restore original classes and styles
-      highlightedElement.className = highlightedElement.dataset.originalClasses || '';
-      highlightedElement.style.position = highlightedElement.dataset.originalPosition || '';
-      highlightedElement.style.zIndex = highlightedElement.dataset.originalZIndex || '';
+    try {
+      // Clean up all tour elements globally
+      cleanupAllTourElements();
       
-      // Clean up data attributes
-      delete highlightedElement.dataset.originalClasses;
-      delete highlightedElement.dataset.originalPosition;
-      delete highlightedElement.dataset.originalZIndex;
+      // Mark as completed
+      onComplete();
+      
+      // Close tour
+      onClose();
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🎉 Tour: Completed successfully');
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Error completing tour:', error);
+      // Force close as fallback
+      try {
+        onClose();
+      } catch (closeError) {
+        console.error('🚨 Tour: Error closing tour:', closeError);
+      }
     }
-    onComplete();
-    onClose();
   };
 
   const skipTour = () => {
-    if (highlightedElement) {
-      // Restore original classes and styles
-      highlightedElement.className = highlightedElement.dataset.originalClasses || '';
-      highlightedElement.style.position = highlightedElement.dataset.originalPosition || '';
-      highlightedElement.style.zIndex = highlightedElement.dataset.originalZIndex || '';
+    try {
+      // Clean up all tour elements globally
+      cleanupAllTourElements();
       
-      // Clean up data attributes
-      delete highlightedElement.dataset.originalClasses;
-      delete highlightedElement.dataset.originalPosition;
-      delete highlightedElement.dataset.originalZIndex;
+      // Close tour
+      onClose();
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⏭️ Tour: Skipped by user');
+      }
+    } catch (error) {
+      console.error('🚨 Tour: Error skipping tour:', error);
+      // Force close as fallback
+      try {
+        onClose();
+      } catch (closeError) {
+        console.error('🚨 Tour: Error closing tour:', closeError);
+      }
     }
-    onClose();
   };
 
   const resetWindowPosition = () => {
@@ -456,6 +691,12 @@ export const GuidedTour = ({ isOpen, onClose, onComplete, onNavigate }: GuidedTo
     {
       ...SHORTCUTS.TOUR_RESTART,
       action: restartTour,
+    },
+    {
+      key: 'Ctrl+R',
+      description: 'Emergency tour recovery',
+      action: emergencyRecovery,
+      context: 'tour',
     },
     {
       key: '?',
@@ -630,6 +871,14 @@ export const GuidedTour = ({ isOpen, onClose, onComplete, onNavigate }: GuidedTo
             title="Restart tour from beginning"
           >
             Restart tour
+          </button>
+          <span className="text-gray-300 dark:text-gray-600">•</span>
+          <button
+            onClick={emergencyRecovery}
+            className="text-sm text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-200 transition-colors"
+            title="Emergency recovery if tour is stuck (Ctrl+R)"
+          >
+            Reset tour
           </button>
           <span className="text-gray-300 dark:text-gray-600">•</span>
           <button

@@ -593,7 +593,7 @@
   }
   
   .touch-feedback-subtle {
-    @apply transition-all duration-150 active:scale-98 active:opacity-90;
+    @apply transition-all duration-150 active:scale-[0.98] active:opacity-90;
   }
   
   /* Mobile Safe Areas */
